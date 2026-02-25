@@ -2,8 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Steady — Over Spirals</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="A gentle companion for perfectionist OCD. Progress, not perfection.">
+    <meta name="theme-color" content="#87a878">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Steady">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,6 +30,7 @@
 
         <nav class="nav">
             <button class="nav-btn active" data-section="checkin">Check In</button>
+            <button class="nav-btn" data-section="breathe">Breathe</button>
             <button class="nav-btn" data-section="reframe">Reframe</button>
             <button class="nav-btn" data-section="wins">Wins</button>
             <button class="nav-btn" data-section="enough">Good Enough</button>
@@ -42,6 +58,29 @@
 
                 <button class="primary-btn" id="save-checkin">Save Check-In</button>
                 <div class="feedback" id="checkin-feedback"></div>
+            </section>
+
+            <!-- Box Breathing -->
+            <section id="breathe" class="section">
+                <h2>Box Breathing</h2>
+                <p class="section-desc">Four counts in. Four counts hold. Four counts out. Four counts hold.</p>
+
+                <div class="breathe-container">
+                    <div class="breathe-box">
+                        <div class="breathe-circle"></div>
+                        <span class="breathe-text">Ready</span>
+                        <span class="breathe-count"></span>
+                    </div>
+                </div>
+
+                <div class="breathe-controls">
+                    <button class="primary-btn" id="start-breathing">Begin</button>
+                    <button class="secondary-btn" id="stop-breathing" style="display: none;">Stop</button>
+                </div>
+
+                <div class="breathe-rounds">
+                    <span id="round-count">0</span> rounds completed
+                </div>
             </section>
 
             <!-- Thought Reframe -->
@@ -87,22 +126,33 @@
 
             <!-- Good Enough Declarations -->
             <section id="enough" class="section">
-                <h2>Declare it good enough</h2>
-                <p class="section-desc">Release it. Done is better than perfect.</p>
+                <h2>Enough for today</h2>
+                <p class="section-desc">Draw the line. What you've done is enough.</p>
 
-                <div class="enough-input">
-                    <label for="enough-text">What are you releasing?</label>
-                    <input type="text" id="enough-text" placeholder="The presentation I worked on">
+                <div class="enough-modes">
+                    <button class="mode-btn active" data-mode="release">Release something</button>
+                    <button class="mode-btn" data-mode="done">I'm done for today</button>
                 </div>
 
-                <button class="primary-btn" id="declare-enough">Release It</button>
+                <div class="enough-release-mode" id="release-mode">
+                    <div class="enough-input">
+                        <label for="enough-text">What are you letting be "good enough"?</label>
+                        <input type="text" id="enough-text" placeholder="The email I sent, the project I worked on...">
+                    </div>
+                    <button class="primary-btn" id="declare-enough">Let It Be Enough</button>
+                </div>
+
+                <div class="enough-done-mode" id="done-mode" style="display: none;">
+                    <p class="done-prompt">You've done enough today. Even if the list isn't empty. Even if the voice says otherwise.</p>
+                    <button class="primary-btn" id="declare-done">I'm Done For Today</button>
+                </div>
 
                 <div class="enough-result" id="enough-result">
                     <!-- Celebration will appear here -->
                 </div>
 
                 <div class="enough-history">
-                    <h3>Things you've released</h3>
+                    <h3>Boundaries you've set</h3>
                     <ul class="enough-list" id="enough-list"></ul>
                 </div>
             </section>
@@ -136,6 +186,9 @@
                     <div class="chart" id="checkin-chart">
                         <!-- Simple bar chart will render here -->
                     </div>
+                    <div class="checkin-detail" id="checkin-detail">
+                        <!-- Selected check-in details appear here -->
+                    </div>
                 </div>
 
                 <div class="recent-activity">
@@ -151,5 +204,15 @@
     </div>
 
     <script src="app.js"></script>
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('Steady ready for offline use'))
+                    .catch(err => console.log('Service worker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>

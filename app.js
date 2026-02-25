@@ -36,6 +36,34 @@
             "What if this thought is just weather passing through? You don't have to grab onto it.",
             "You've checked enough. The checking isn't making you more certain — it's keeping you stuck."
         ],
+        // Checking and reviewing patterns
+        checking: [
+            "You already did it. The urge to check again is the OCD talking, not reality.",
+            "Checking one more time won't give you the certainty you're looking for. That certainty doesn't exist.",
+            "What if you let this one stay unchecked? The discomfort will pass. It always does.",
+            "You're not being careless by not checking. You're being brave.",
+            "The memory feels uncertain because you're anxious, not because you didn't do it.",
+            "Trust the version of you who did the thing. That person was paying attention."
+        ],
+        // Never enough patterns
+        neverEnough: [
+            "You've done enough for today. Not because the list is done — because you are a person, not a machine.",
+            "The finish line keeps moving because perfectionism moves it. You can choose to stop here.",
+            "Enough isn't a number. It's a decision you make. You can make it right now.",
+            "What you did today is enough. Even if the voice says otherwise. Especially if the voice says otherwise.",
+            "You're not behind. There's no schedule you're supposed to be keeping up with.",
+            "The 'more' you think you need to do will still be there tomorrow. You don't have to earn rest.",
+            "Productivity is not your worth. You matter when you're doing nothing at all."
+        ],
+        // Overcommitment patterns
+        overcommitment: [
+            "You added too much to the list because you forgot you're human. It's okay to remove things.",
+            "Saying no to something is saying yes to your sanity. That's a fair trade.",
+            "You can't do everything. Nobody can. That's not a personal failing — it's physics.",
+            "The list will never be empty. That's not the goal. The goal is to live while the list exists.",
+            "Doing less isn't laziness when you're already doing too much. It's correction.",
+            "What would happen if you just... didn't do one of these things? Probably nothing catastrophic."
+        ],
         // Rigid routine patterns
         rigidity: [
             "Today didn't go as planned, and that's allowed. Tomorrow is another chance to show up.",
@@ -92,15 +120,31 @@
     function detectPattern(thought) {
         const lower = thought.toLowerCase();
 
+        // Checking patterns - OCD specific
+        if (lower.includes('did i') || lower.includes('check') || lower.includes('make sure') || lower.includes('double check') || lower.includes('forget') || lower.includes('remember if')) {
+            return 'checking';
+        }
+        // Never enough patterns
+        if (lower.includes('not enough') || lower.includes('enough') || lower.includes('more to do') || lower.includes('should be doing') || lower.includes('not doing enough') || lower.includes('behind') || lower.includes('catching up')) {
+            return 'neverEnough';
+        }
+        // Overcommitment patterns
+        if (lower.includes('too much') || lower.includes('overwhelm') || lower.includes('so many') || lower.includes('list') || lower.includes('everything') || lower.includes('all the things')) {
+            return 'overcommitment';
+        }
+        // Task paralysis
         if (lower.includes('start') || lower.includes('begin') || lower.includes('know how') || lower.includes('ready')) {
             return 'perfectStart';
         }
+        // All-or-nothing
         if (lower.includes('all') || lower.includes('nothing') || lower.includes('completely') || lower.includes('100%') || lower.includes("can't do")) {
             return 'allOrNothing';
         }
-        if (lower.includes('check') || lower.includes('sure') || lower.includes('certain') || lower.includes('what if') || lower.includes('worry')) {
+        // Rumination
+        if (lower.includes('sure') || lower.includes('certain') || lower.includes('what if') || lower.includes('worry') || lower.includes('keep thinking')) {
             return 'rumination';
         }
+        // Rigidity
         if (lower.includes('routine') || lower.includes('schedule') || lower.includes('plan') || lower.includes('supposed to') || lower.includes('should have')) {
             return 'rigidity';
         }
@@ -329,11 +373,31 @@
     // Good Enough Declarations
     // ============================================
     function initEnough() {
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const releaseMode = document.getElementById('release-mode');
+        const doneMode = document.getElementById('done-mode');
         const input = document.getElementById('enough-text');
         const declareBtn = document.getElementById('declare-enough');
+        const doneBtn = document.getElementById('declare-done');
         const result = document.getElementById('enough-result');
-        const enoughList = document.getElementById('enough-list');
 
+        // Mode switching
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                if (btn.dataset.mode === 'release') {
+                    releaseMode.style.display = 'block';
+                    doneMode.style.display = 'none';
+                } else {
+                    releaseMode.style.display = 'none';
+                    doneMode.style.display = 'block';
+                }
+            });
+        });
+
+        // Release something specific
         declareBtn.addEventListener('click', () => {
             const text = input.value.trim();
             if (!text) return;
@@ -341,6 +405,7 @@
             const release = {
                 id: Date.now(),
                 text: text,
+                type: 'release',
                 date: new Date().toISOString()
             };
 
@@ -348,29 +413,39 @@
             releases.unshift(release);
             saveData(KEYS.RELEASES, releases);
 
-            // Show celebration
             const celebrations = [
-                `Released. "${text}" is done enough.`,
-                `Let go. "${text}" no longer needs to be perfect.`,
-                `Done. You gave "${text}" what it needed.`,
-                `Released. "${text}" served its purpose.`
+                `"${text}" is enough. You gave it what it needed.`,
+                `Let go. "${text}" doesn't need to be perfect.`,
+                `"${text}" is done. The rest is noise.`,
+                `Released. "${text}" no longer owns your peace.`
             ];
-            result.innerHTML = `
-                <span class="checkmark">✓</span>
-                <p>${getRandomItem(celebrations)}</p>
-            `;
-            result.classList.add('show');
-
-            // Clear input
+            showEnoughResult(result, getRandomItem(celebrations));
             input.value = '';
-
-            // Update history
             renderReleases();
+        });
 
-            // Hide result after a moment
-            setTimeout(() => {
-                result.classList.remove('show');
-            }, 4000);
+        // Done for today
+        doneBtn.addEventListener('click', () => {
+            const release = {
+                id: Date.now(),
+                text: 'Drew the line for today',
+                type: 'done',
+                date: new Date().toISOString()
+            };
+
+            const releases = getData(KEYS.RELEASES);
+            releases.unshift(release);
+            saveData(KEYS.RELEASES, releases);
+
+            const celebrations = [
+                "You're done. The list can wait. You cannot be poured from an empty cup.",
+                "Line drawn. Tomorrow is tomorrow. Tonight, you rest.",
+                "Enough. Not because everything is finished — because you decided.",
+                "Done for today. The world will keep spinning. You did your part.",
+                "You stopped. That takes more strength than pushing through. Well done."
+            ];
+            showEnoughResult(result, getRandomItem(celebrations));
+            renderReleases();
         });
 
         // Handle enter key
@@ -384,21 +459,120 @@
         renderReleases();
     }
 
+    function showEnoughResult(result, message) {
+        result.innerHTML = `
+            <span class="checkmark">✓</span>
+            <p>${message}</p>
+        `;
+        result.classList.add('show');
+        setTimeout(() => {
+            result.classList.remove('show');
+        }, 5000);
+    }
+
     function renderReleases() {
         const enoughList = document.getElementById('enough-list');
         const releases = getData(KEYS.RELEASES).slice(0, 10);
 
         if (releases.length === 0) {
-            enoughList.innerHTML = '<li class="empty-state">Things you release will appear here</li>';
+            enoughList.innerHTML = '<li class="empty-state">Your boundaries will appear here</li>';
             return;
         }
 
         enoughList.innerHTML = releases.map(r => `
-            <li>
-                <span class="enough-text">${r.text}</span>
+            <li class="${r.type === 'done' ? 'done-entry' : ''}">
+                <span class="enough-text">${r.type === 'done' ? '🛑 ' : ''}${r.text}</span>
                 <span class="enough-date">${formatDate(r.date)}</span>
             </li>
         `).join('');
+    }
+
+    // ============================================
+    // Box Breathing Feature
+    // ============================================
+    let breathingInterval = null;
+    let breathingTimeout = null;
+    let roundCount = 0;
+
+    function initBreathe() {
+        const startBtn = document.getElementById('start-breathing');
+        const stopBtn = document.getElementById('stop-breathing');
+        const box = document.querySelector('.breathe-box');
+        const text = document.querySelector('.breathe-text');
+        const count = document.querySelector('.breathe-count');
+        const roundDisplay = document.getElementById('round-count');
+
+        startBtn.addEventListener('click', () => {
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            roundCount = 0;
+            roundDisplay.textContent = roundCount;
+            startBreathingCycle(box, text, count, roundDisplay);
+        });
+
+        stopBtn.addEventListener('click', () => {
+            stopBreathing(box, text, count);
+            stopBtn.style.display = 'none';
+            startBtn.style.display = 'inline-block';
+        });
+    }
+
+    function startBreathingCycle(box, text, count, roundDisplay) {
+        const phases = [
+            { name: 'inhale', label: 'Breathe In', className: 'inhale' },
+            { name: 'hold-in', label: 'Hold', className: 'hold-in' },
+            { name: 'exhale', label: 'Breathe Out', className: 'exhale' },
+            { name: 'hold-out', label: 'Hold', className: 'hold-out' }
+        ];
+
+        let phaseIndex = 0;
+
+        function runPhase() {
+            const phase = phases[phaseIndex];
+
+            // Remove all phase classes
+            box.classList.remove('inhale', 'hold-in', 'exhale', 'hold-out');
+            box.classList.add(phase.className);
+            text.textContent = phase.label;
+
+            // Countdown
+            let seconds = 4;
+            count.textContent = seconds;
+
+            breathingInterval = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    count.textContent = seconds;
+                } else {
+                    count.textContent = '';
+                }
+            }, 1000);
+
+            // Move to next phase
+            breathingTimeout = setTimeout(() => {
+                clearInterval(breathingInterval);
+                phaseIndex++;
+
+                // Completed one full cycle
+                if (phaseIndex >= phases.length) {
+                    phaseIndex = 0;
+                    roundCount++;
+                    roundDisplay.textContent = roundCount;
+                }
+
+                runPhase();
+            }, 4000);
+        }
+
+        runPhase();
+    }
+
+    function stopBreathing(box, text, count) {
+        clearInterval(breathingInterval);
+        clearTimeout(breathingTimeout);
+        box.classList.remove('inhale', 'hold-in', 'exhale', 'hold-out');
+        text.textContent = 'Ready';
+        count.textContent = '';
     }
 
     // ============================================
@@ -425,24 +599,65 @@
 
     function renderCheckinChart(checkins) {
         const chart = document.getElementById('checkin-chart');
+        const detail = document.getElementById('checkin-detail');
         const last7 = checkins.slice(0, 7).reverse();
 
         if (last7.length === 0) {
             chart.innerHTML = '<p class="empty-state">Check-ins will create a pattern here</p>';
+            detail.classList.remove('show');
             return;
         }
 
         // Max value is 5
         const maxHeight = 100;
-        chart.innerHTML = last7.map(c => {
+        chart.innerHTML = last7.map((c, index) => {
             const height = (c.value / 5) * maxHeight;
             const day = new Date(c.date).toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
             return `
-                <div class="chart-bar" style="height: ${height}px" title="Level ${c.value}">
+                <div class="chart-bar" style="height: ${height}px" data-index="${index}">
                     <span class="bar-label">${day}</span>
                 </div>
             `;
         }).join('');
+
+        // Add click handlers to bars
+        const bars = chart.querySelectorAll('.chart-bar');
+        bars.forEach(bar => {
+            bar.addEventListener('click', () => {
+                const index = parseInt(bar.dataset.index);
+                const checkin = last7[index];
+
+                // Update selected state
+                bars.forEach(b => b.classList.remove('selected'));
+                bar.classList.add('selected');
+
+                // Show detail
+                showCheckinDetail(checkin, detail);
+            });
+        });
+    }
+
+    function showCheckinDetail(checkin, detailEl) {
+        const levelLabels = ['', 'Calm', 'Slight', 'Present', 'Strong', 'Intense'];
+        const dateStr = new Date(checkin.date).toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+
+        detailEl.innerHTML = `
+            <div class="detail-header">
+                <span class="detail-level">Level ${checkin.value} — ${levelLabels[checkin.value]}</span>
+                <span class="detail-date">${dateStr}</span>
+            </div>
+            ${checkin.reflection
+                ? `<p class="detail-reflection">"${checkin.reflection}"</p>`
+                : `<p class="no-reflection">No reflection added</p>`
+            }
+        `;
+        detailEl.classList.add('show');
     }
 
     function renderRecentActivity(checkins, wins, releases, reframes) {
@@ -480,6 +695,7 @@
     function init() {
         initNavigation();
         initCheckin();
+        initBreathe();
         initReframe();
         initWins();
         initEnough();
