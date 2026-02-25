@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steady — Over Spirals</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <h1>Steady</h1>
+            <p class="tagline">Progress, not perfection</p>
+        </header>
+
+        <nav class="nav">
+            <button class="nav-btn active" data-section="checkin">Check In</button>
+            <button class="nav-btn" data-section="reframe">Reframe</button>
+            <button class="nav-btn" data-section="wins">Wins</button>
+            <button class="nav-btn" data-section="enough">Good Enough</button>
+            <button class="nav-btn" data-section="progress">Progress</button>
+        </nav>
+
+        <main class="main">
+            <!-- Daily Check-In -->
+            <section id="checkin" class="section active">
+                <h2>How are the spirals today?</h2>
+                <p class="section-desc">No judgment. Just noticing.</p>
+
+                <div class="checkin-scale">
+                    <button class="scale-btn" data-value="1">1<span>Calm</span></button>
+                    <button class="scale-btn" data-value="2">2<span>Slight</span></button>
+                    <button class="scale-btn" data-value="3">3<span>Present</span></button>
+                    <button class="scale-btn" data-value="4">4<span>Strong</span></button>
+                    <button class="scale-btn" data-value="5">5<span>Intense</span></button>
+                </div>
+
+                <div class="checkin-reflection">
+                    <label for="reflection">Anything you want to note? (optional)</label>
+                    <textarea id="reflection" placeholder="A thought, a feeling, a moment..."></textarea>
+                </div>
+
+                <button class="primary-btn" id="save-checkin">Save Check-In</button>
+                <div class="feedback" id="checkin-feedback"></div>
+            </section>
+
+            <!-- Thought Reframe -->
+            <section id="reframe" class="section">
+                <h2>Reframe a thought</h2>
+                <p class="section-desc">Write the perfectionist thought. Let's find a gentler angle.</p>
+
+                <div class="reframe-input">
+                    <label for="perfectionist-thought">The thought I'm having...</label>
+                    <textarea id="perfectionist-thought" placeholder="I can't start until I know exactly how to do it perfectly..."></textarea>
+                </div>
+
+                <button class="primary-btn" id="get-reframe">Find a gentler view</button>
+
+                <div class="reframe-output" id="reframe-result">
+                    <!-- Reframe will appear here -->
+                </div>
+
+                <div class="reframe-history" id="reframe-history">
+                    <h3>Past reframes</h3>
+                    <div class="history-list" id="reframe-list"></div>
+                </div>
+            </section>
+
+            <!-- Micro-Wins -->
+            <section id="wins" class="section">
+                <h2>Log a micro-win</h2>
+                <p class="section-desc">Something small you did. It all counts.</p>
+
+                <div class="win-input">
+                    <label for="win-text">One small thing...</label>
+                    <input type="text" id="win-text" placeholder="I replied to that email">
+                </div>
+
+                <button class="primary-btn" id="save-win">Add Win</button>
+                <div class="feedback" id="win-feedback"></div>
+
+                <div class="wins-history">
+                    <h3>Your wins</h3>
+                    <ul class="wins-list" id="wins-list"></ul>
+                </div>
+            </section>
+
+            <!-- Good Enough Declarations -->
+            <section id="enough" class="section">
+                <h2>Declare it good enough</h2>
+                <p class="section-desc">Release it. Done is better than perfect.</p>
+
+                <div class="enough-input">
+                    <label for="enough-text">What are you releasing?</label>
+                    <input type="text" id="enough-text" placeholder="The presentation I worked on">
+                </div>
+
+                <button class="primary-btn" id="declare-enough">Release It</button>
+
+                <div class="enough-result" id="enough-result">
+                    <!-- Celebration will appear here -->
+                </div>
+
+                <div class="enough-history">
+                    <h3>Things you've released</h3>
+                    <ul class="enough-list" id="enough-list"></ul>
+                </div>
+            </section>
+
+            <!-- Progress View -->
+            <section id="progress" class="section">
+                <h2>Your steady journey</h2>
+                <p class="section-desc">Patterns over time. No streaks—just presence.</p>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-checkins">0</span>
+                        <span class="stat-label">Check-ins</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-wins">0</span>
+                        <span class="stat-label">Micro-wins</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-releases">0</span>
+                        <span class="stat-label">Released</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-reframes">0</span>
+                        <span class="stat-label">Reframes</span>
+                    </div>
+                </div>
+
+                <div class="checkin-chart">
+                    <h3>Recent check-ins</h3>
+                    <div class="chart" id="checkin-chart">
+                        <!-- Simple bar chart will render here -->
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h3>Recent activity</h3>
+                    <ul class="activity-list" id="activity-list"></ul>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>Steady over spirals. You're doing enough.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
