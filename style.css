@@ -617,6 +617,18 @@ textarea::placeholder, input::placeholder {
     font-size: 0.9rem;
 }
 
+.feedback-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--sage);
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.feedback-link:hover {
+    text-decoration: underline;
+}
+
 /* Empty states */
 .empty-state {
     text-align: center;
