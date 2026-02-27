@@ -5,6 +5,32 @@
     'use strict';
 
     // ============================================
+    // Welcome Affirmations
+    // ============================================
+    const AFFIRMATIONS = [
+        "You are not your thoughts. You are the one observing them.",
+        "Progress over perfection. Always.",
+        "The urge to check again is not a signal that you need to check. It's just an urge.",
+        "You've already done enough today. Even if you do nothing else.",
+        "Uncertainty is uncomfortable, not dangerous. You can sit with it.",
+        "Your worth is not measured by your productivity.",
+        "Good enough is good. It really is.",
+        "You don't have to feel ready to begin.",
+        "The anxiety will pass. It always does.",
+        "You are allowed to rest before you're exhausted.",
+        "Mistakes are proof that you're trying, not proof that you're failing.",
+        "You cannot think your way to certainty. And that's okay.",
+        "Today, you only need to do today.",
+        "The loop wants your attention. You don't have to give it.",
+        "You are more than the worst thing your mind tells you.",
+        "Letting go isn't giving up. It's moving forward.",
+        "Your brain is trying to protect you. But you're already safe.",
+        "One thing at a time. That's all anyone can do.",
+        "You don't owe anyone perfection. Not even yourself.",
+        "Being kind to yourself is not laziness. It's strength."
+    ];
+
+    // ============================================
     // Storage Keys
     // ============================================
     const KEYS = {
@@ -690,9 +716,40 @@
     }
 
     // ============================================
+    // Welcome Affirmation
+    // ============================================
+    function initAffirmation() {
+        const overlay = document.getElementById('affirmation-overlay');
+        const textEl = document.getElementById('affirmation-text');
+        const dismissBtn = document.getElementById('affirmation-dismiss');
+
+        if (!overlay || !textEl || !dismissBtn) return;
+
+        // Show random affirmation
+        const affirmation = getRandomItem(AFFIRMATIONS);
+        textEl.textContent = affirmation;
+
+        // Dismiss on button click
+        dismissBtn.addEventListener('click', () => {
+            overlay.style.animation = 'affirmationFadeIn 0.3s ease reverse';
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300);
+        });
+
+        // Also dismiss on overlay click (outside card)
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                dismissBtn.click();
+            }
+        });
+    }
+
+    // ============================================
     // Initialize App
     // ============================================
     function init() {
+        initAffirmation();
         initNavigation();
         initCheckin();
         initBreathe();
