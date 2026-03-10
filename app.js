@@ -185,6 +185,16 @@
         const navBtns = document.querySelectorAll('.nav-btn');
         const sections = document.querySelectorAll('.section');
 
+        // Scroll hint: hide fade when scrolled to the end
+        const navEl = document.querySelector('.nav');
+        const navWrapper = document.querySelector('.nav-wrapper');
+        if (navEl && navWrapper) {
+            navEl.addEventListener('scroll', () => {
+                const atEnd = navEl.scrollLeft + navEl.offsetWidth >= navEl.scrollWidth - 4;
+                navWrapper.classList.toggle('scrolled-end', atEnd);
+            });
+        }
+
         navBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetSection = btn.dataset.section;
@@ -196,6 +206,9 @@
                 // Update sections
                 sections.forEach(s => s.classList.remove('active'));
                 document.getElementById(targetSection).classList.add('active');
+
+                // Scroll nav to show active tab
+                btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
                 // Refresh progress view if navigating there
                 if (targetSection === 'progress') {
