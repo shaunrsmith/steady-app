@@ -42,6 +42,7 @@
             <button class="nav-btn" data-section="reframe">Reframe</button>
             <button class="nav-btn" data-section="wins">Wins</button>
             <button class="nav-btn" data-section="enough">Good Enough</button>
+            <button class="nav-btn" data-section="reflect">End of Day</button>
             <button class="nav-btn" data-section="progress">Progress</button>
         </nav>
 
@@ -165,6 +166,57 @@
                 </div>
             </section>
 
+            <!-- End of Day Reflection -->
+            <section id="reflect" class="section">
+                <h2>Close the day</h2>
+                <p class="section-desc">Look back gently. You did more than you think.</p>
+
+                <div class="reflect-step" id="reflect-step-1">
+                    <label for="reflect-items">What did you actually do today?</label>
+                    <p class="reflect-hint">Small things count. Got dressed? Ate? Replied to a message? List anything.</p>
+                    <div class="reflect-entries" id="reflect-entries">
+                        <!-- Entries will be added here -->
+                    </div>
+                    <div class="reflect-add">
+                        <input type="text" id="reflect-item-input" placeholder="I did this one thing...">
+                        <button class="secondary-btn reflect-add-btn" id="add-reflect-item">Add</button>
+                    </div>
+                    <button class="primary-btn" id="reflect-next" disabled>See what I did</button>
+                </div>
+
+                <div class="reflect-step" id="reflect-step-2" style="display: none;">
+                    <div class="reflect-summary" id="reflect-summary">
+                        <!-- Summary renders here -->
+                    </div>
+
+                    <div class="reflect-traps">
+                        <h3>Do any of these feel familiar right now?</h3>
+                        <div class="trap-list" id="trap-list">
+                            <button class="trap-btn" data-trap="goalposts">I keep moving the goalpost</button>
+                            <button class="trap-btn" data-trap="comparing">I'm comparing myself to others</button>
+                            <button class="trap-btn" data-trap="discounting">I'm discounting what I did</button>
+                            <button class="trap-btn" data-trap="shouldhave">I'm focused on what I didn't do</button>
+                        </div>
+                        <div class="trap-response" id="trap-response">
+                            <!-- Trap-specific response appears here -->
+                        </div>
+                    </div>
+
+                    <button class="primary-btn reflect-close-btn" id="close-the-day">Close the day</button>
+                </div>
+
+                <div class="reflect-step" id="reflect-step-3" style="display: none;">
+                    <div class="reflect-closed" id="reflect-closed">
+                        <!-- Closing message renders here -->
+                    </div>
+                </div>
+
+                <div class="reflect-history">
+                    <h3>Past reflections</h3>
+                    <ul class="reflect-list" id="reflect-list"></ul>
+                </div>
+            </section>
+
             <!-- Progress View -->
             <section id="progress" class="section">
                 <h2>Your steady journey</h2>
@@ -186,6 +238,10 @@
                     <div class="stat-card">
                         <span class="stat-number" id="total-reframes">0</span>
                         <span class="stat-label">Reframes</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-reflections">0</span>
+                        <span class="stat-label">Days closed</span>
                     </div>
                 </div>
 

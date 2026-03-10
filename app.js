@@ -37,7 +37,8 @@
         CHECKINS: 'steady_checkins',
         WINS: 'steady_wins',
         RELEASES: 'steady_releases',
-        REFRAMES: 'steady_reframes'
+        REFRAMES: 'steady_reframes',
+        REFLECTIONS: 'steady_reflections'
     };
 
     // ============================================
@@ -609,18 +610,20 @@
         const wins = getData(KEYS.WINS);
         const releases = getData(KEYS.RELEASES);
         const reframes = getData(KEYS.REFRAMES);
+        const reflections = getData(KEYS.REFLECTIONS);
 
         // Update stats
         document.getElementById('total-checkins').textContent = checkins.length;
         document.getElementById('total-wins').textContent = wins.length;
         document.getElementById('total-releases').textContent = releases.length;
         document.getElementById('total-reframes').textContent = reframes.length;
+        document.getElementById('total-reflections').textContent = reflections.length;
 
         // Render check-in chart (last 7 days)
         renderCheckinChart(checkins);
 
         // Render recent activity
-        renderRecentActivity(checkins, wins, releases, reframes);
+        renderRecentActivity(checkins, wins, releases, reframes, reflections);
     }
 
     function renderCheckinChart(checkins) {
@@ -686,7 +689,7 @@
         detailEl.classList.add('show');
     }
 
-    function renderRecentActivity(checkins, wins, releases, reframes) {
+    function renderRecentActivity(checkins, wins, releases, reframes, reflections) {
         const activityList = document.getElementById('activity-list');
 
         // Combine all activities
@@ -694,7 +697,8 @@
             ...checkins.slice(0, 3).map(c => ({ type: 'Check-in', date: c.date, detail: `Level ${c.value}` })),
             ...wins.slice(0, 3).map(w => ({ type: 'Win', date: w.date, detail: w.text })),
             ...releases.slice(0, 3).map(r => ({ type: 'Released', date: r.date, detail: r.text })),
-            ...reframes.slice(0, 3).map(r => ({ type: 'Reframe', date: r.date, detail: '' }))
+            ...reframes.slice(0, 3).map(r => ({ type: 'Reframe', date: r.date, detail: '' })),
+            ...reflections.slice(0, 3).map(r => ({ type: 'Reflection', date: r.date, detail: `${r.items.length} thing${r.items.length === 1 ? '' : 's'}` }))
         ];
 
         // Sort by date, most recent first
@@ -711,6 +715,180 @@
             <li>
                 <span class="activity-type">${a.type}</span>
                 <span class="activity-date">${formatDate(a.date)} ${formatTime(a.date)}</span>
+            </li>
+        `).join('');
+    }
+
+    // ============================================
+    // End of Day Reflection
+    // ============================================
+    const TRAP_RESPONSES = {
+        goalposts: [
+            "Notice that: you finished something, and instead of letting it count, you raised the bar. The goalpost moved — but you didn't fail. The game changed without your permission.",
+            "The finish line isn't real. Your brain invented it, then moved it. What you did today was real. That's what counts.",
+            "You could cure a disease and your brain would ask why you didn't cure two. The goalpost trick is one of perfectionism's oldest moves. Don't fall for it."
+        ],
+        comparing: [
+            "You're comparing your behind-the-scenes to someone else's highlight reel. You don't know what they didn't do today. You only know what you did. And it was enough.",
+            "Other people's output is not your benchmark. You are living your life, with your brain, your energy, your circumstances. That's the only fair comparison.",
+            "Comparison steals the credit from what you actually accomplished. Those things you did today? They happened. No one else's day changes that."
+        ],
+        discounting: [
+            "You just listed real things you did, and now you're trying to un-count them. That's the anxiety talking. Read your list again — slowly. Those things happened because of you.",
+            "'That doesn't count' is a lie perfectionism tells to keep you running. Everything counts. The small stuff especially.",
+            "If a friend told you they did these things, you'd say 'that's great.' Try giving yourself that same grace."
+        ],
+        shouldhave: [
+            "The 'should have' list is infinite. It will never be empty. But the 'what I did' list is real and finite, and you just wrote it down. Stay with what's real.",
+            "You're grieving a fantasy version of today that never existed. The actual today had you in it, doing actual things. That's the one that matters.",
+            "Focusing on what you didn't do is like looking at a painting and only seeing the blank canvas around it. The painting is there. Look at the painting."
+        ]
+    };
+
+    const CLOSING_MESSAGES = [
+        "The day is closed. Not because everything got done — because you decided to stop carrying it. Sleep is not a reward for productivity. It's a human need. Go rest.",
+        "You showed up today. In all the ways you listed, and probably in ways you forgot to mention. The day is done. Let it be done.",
+        "Look at that list one more time. That was you. That was today. Tomorrow will bring its own list. Tonight, this one is finished.",
+        "The day doesn't need your permission to end. But you gave it a proper goodbye, and that matters. You did enough. Goodnight.",
+        "Every single thing on your list was a choice you made to show up. The day is over now. You can put it down."
+    ];
+
+    function initReflect() {
+        const itemInput = document.getElementById('reflect-item-input');
+        const addBtn = document.getElementById('add-reflect-item');
+        const nextBtn = document.getElementById('reflect-next');
+        const closeBtn = document.getElementById('close-the-day');
+        const entriesContainer = document.getElementById('reflect-entries');
+        const trapBtns = document.querySelectorAll('.trap-btn');
+
+        let reflectItems = [];
+
+        function renderEntries() {
+            if (reflectItems.length === 0) {
+                entriesContainer.innerHTML = '';
+                nextBtn.disabled = true;
+                return;
+            }
+
+            nextBtn.disabled = false;
+            entriesContainer.innerHTML = reflectItems.map((item, i) => `
+                <div class="reflect-entry">
+                    <span class="reflect-entry-text">${item}</span>
+                    <button class="reflect-entry-remove" data-index="${i}" aria-label="Remove">&times;</button>
+                </div>
+            `).join('');
+
+            // Attach remove handlers
+            entriesContainer.querySelectorAll('.reflect-entry-remove').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    reflectItems.splice(parseInt(btn.dataset.index), 1);
+                    renderEntries();
+                });
+            });
+        }
+
+        function addItem() {
+            const text = itemInput.value.trim();
+            if (!text) return;
+            reflectItems.push(text);
+            itemInput.value = '';
+            renderEntries();
+            itemInput.focus();
+        }
+
+        addBtn.addEventListener('click', addItem);
+        itemInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addItem();
+        });
+
+        // Step 1 → Step 2: Show summary
+        nextBtn.addEventListener('click', () => {
+            document.getElementById('reflect-step-1').style.display = 'none';
+            document.getElementById('reflect-step-2').style.display = 'block';
+
+            const summary = document.getElementById('reflect-summary');
+            const count = reflectItems.length;
+            const countWord = count === 1 ? 'one thing' : count + ' things';
+
+            summary.innerHTML = `
+                <p class="reflect-count">You did <strong>${countWord}</strong> today.</p>
+                <ul class="reflect-summary-list">
+                    ${reflectItems.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+                <p class="reflect-affirmation">Read that list. That was you. That was real.</p>
+            `;
+
+            summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // Trap buttons
+        trapBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                trapBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const trap = btn.dataset.trap;
+                const response = getRandomItem(TRAP_RESPONSES[trap]);
+
+                const responseEl = document.getElementById('trap-response');
+                responseEl.innerHTML = `<p>${response}</p>`;
+                responseEl.classList.add('show');
+            });
+        });
+
+        // Close the day
+        closeBtn.addEventListener('click', () => {
+            document.getElementById('reflect-step-2').style.display = 'none';
+            document.getElementById('reflect-step-3').style.display = 'block';
+
+            const closedEl = document.getElementById('reflect-closed');
+            closedEl.innerHTML = `
+                <span class="reflect-closed-icon">&#9790;</span>
+                <p class="reflect-closed-message">${getRandomItem(CLOSING_MESSAGES)}</p>
+                <button class="secondary-btn" id="reflect-reset">Start a new reflection</button>
+            `;
+            closedEl.classList.add('show');
+
+            // Save the reflection
+            const reflection = {
+                id: Date.now(),
+                items: [...reflectItems],
+                date: new Date().toISOString()
+            };
+            const reflections = getData(KEYS.REFLECTIONS);
+            reflections.unshift(reflection);
+            saveData(KEYS.REFLECTIONS, reflections.slice(0, 30));
+
+            renderReflectHistory();
+
+            // Reset button
+            document.getElementById('reflect-reset').addEventListener('click', () => {
+                reflectItems = [];
+                renderEntries();
+                document.getElementById('reflect-step-3').style.display = 'none';
+                document.getElementById('reflect-step-1').style.display = 'block';
+                document.getElementById('trap-response').classList.remove('show');
+                document.querySelectorAll('.trap-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('reflect-closed').classList.remove('show');
+            });
+        });
+
+        renderReflectHistory();
+    }
+
+    function renderReflectHistory() {
+        const list = document.getElementById('reflect-list');
+        const reflections = getData(KEYS.REFLECTIONS).slice(0, 5);
+
+        if (reflections.length === 0) {
+            list.innerHTML = '<li class="empty-state">Your reflections will appear here</li>';
+            return;
+        }
+
+        list.innerHTML = reflections.map(r => `
+            <li>
+                <span class="reflect-history-text">${r.items.length} thing${r.items.length === 1 ? '' : 's'} done</span>
+                <span class="reflect-history-date">${formatDate(r.date)}</span>
             </li>
         `).join('');
     }
@@ -756,6 +934,7 @@
         initReframe();
         initWins();
         initEnough();
+        initReflect();
         renderProgress();
 
         console.log('Steady initialized. You\'re doing enough.');
