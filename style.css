@@ -822,6 +822,215 @@ textarea::placeholder, input::placeholder {
     transform: translateY(-1px);
 }
 
+/* End of Day Reflection */
+.reflect-steps {
+    position: relative;
+}
+
+.reflect-step {
+    display: none;
+}
+
+.reflect-step.active {
+    display: block;
+    animation: fadeIn 0.4s ease;
+}
+
+.reflect-step h3 {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.step-hint {
+    color: var(--text-gentle);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.step-affirm {
+    color: var(--sage-dark);
+    font-size: 1rem;
+    margin-bottom: 24px;
+    font-style: italic;
+}
+
+.reflect-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.reflect-input input {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--sage-light);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    background: white;
+}
+
+.reflect-input input:focus {
+    outline: none;
+    border-color: var(--sage);
+}
+
+.add-btn {
+    padding: 14px 20px;
+    background: var(--sage);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.add-btn:hover {
+    background: var(--sage-dark);
+}
+
+.reflect-list {
+    list-style: none;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reflect-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--warm-cream);
+    border-radius: var(--radius-sm);
+    animation: fadeIn 0.2s ease;
+}
+
+.reflect-list li span {
+    color: var(--text-secondary);
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: var(--text-gentle);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: var(--transition);
+}
+
+.remove-btn:hover {
+    color: #c97070;
+}
+
+.reflect-review {
+    list-style: none;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: var(--sage-light);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--sage);
+}
+
+.reflect-review li {
+    padding: 8px 0;
+    color: var(--sage-dark);
+    border-bottom: 1px solid rgba(135, 168, 120, 0.3);
+}
+
+.reflect-review li:last-child {
+    border-bottom: none;
+}
+
+.trap-section {
+    margin-bottom: 32px;
+}
+
+.trap-prompt {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.trap-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.trap-btn {
+    padding: 10px 14px;
+    background: white;
+    border: 2px solid var(--sage-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.trap-btn:hover {
+    border-color: var(--sage);
+    background: var(--warm-cream);
+}
+
+.trap-btn.selected {
+    border-color: var(--sage);
+    background: var(--sage-light);
+    color: var(--sage-dark);
+}
+
+.trap-response {
+    display: none;
+    padding: 16px;
+    background: var(--warm-cream);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--sage);
+}
+
+.trap-response.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.trap-response p {
+    color: var(--sage-dark);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.reflect-close {
+    text-align: center;
+    padding: 48px 24px;
+    background: linear-gradient(135deg, var(--sage-light) 0%, var(--warm-cream) 100%);
+    border-radius: var(--radius);
+    margin-bottom: 24px;
+}
+
+.close-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.close-message {
+    font-size: 1.15rem;
+    color: var(--sage-dark);
+    line-height: 1.7;
+    font-weight: 500;
+}
+
+#reflect-step-1 .primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Mobile adjustments */
 @media (max-width: 480px) {
     .header h1 {

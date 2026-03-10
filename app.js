@@ -37,7 +37,8 @@
         CHECKINS: 'steady_checkins',
         WINS: 'steady_wins',
         RELEASES: 'steady_releases',
-        REFRAMES: 'steady_reframes'
+        REFRAMES: 'steady_reframes',
+        REFLECTIONS: 'steady_reflections'
     };
 
     // ============================================
@@ -106,6 +107,40 @@
             "The thing you're worried about is probably invisible to everyone else. They see the whole you."
         ]
     };
+
+    // ============================================
+    // Productivity Trap Responses
+    // ============================================
+    const TRAP_RESPONSES = {
+        goalpost: [
+            "The finish line keeps moving because perfectionism moves it. Notice: you did cross lines today. They just got erased.",
+            "What would 'done' look like if you weren't allowed to add anything else? That's the real finish line.",
+            "The goalpost will always move if you let it. You can choose to stop chasing and just... stand here. This is enough ground."
+        ],
+        compare: [
+            "You're comparing your behind-the-scenes to someone else's highlight reel. They have messy days too.",
+            "Their path isn't yours. Their pace isn't yours. Your only job is to take your next step.",
+            "Someone out there is comparing themselves to you and feeling inadequate. That's how arbitrary this is."
+        ],
+        discount: [
+            "If a friend told you they did what you did today, would you say 'that doesn't count'? Be that friend to yourself.",
+            "The things you're dismissing are things. You did them. They happened. That's not nothing.",
+            "Small is not the same as worthless. A single step is still forward motion."
+        ],
+        undone: [
+            "The undone list is infinite. It will never be empty. That's not a flaw in you — that's life.",
+            "Focusing on what you didn't do is like looking at an ocean and only seeing the fish that got away.",
+            "Tomorrow exists. The undone things aren't going anywhere. But neither is your worth."
+        ]
+    };
+
+    const CLOSING_MESSAGES = [
+        "The day is closed. Not because everything got done — because you decided to stop carrying it.",
+        "You showed up. You did things. You're letting go now. That's a complete day.",
+        "Tomorrow is a new page. Tonight, this one is finished.",
+        "Done doesn't mean perfect. Done means you're allowed to rest now.",
+        "The day held what it held. You carried what you carried. Now, set it down."
+    ];
 
     // ============================================
     // Utility Functions
@@ -602,6 +637,113 @@
     }
 
     // ============================================
+    // End of Day Reflection
+    // ============================================
+    let reflectItems = [];
+
+    function initReflect() {
+        const input = document.getElementById('reflect-item');
+        const addBtn = document.getElementById('add-reflect-item');
+        const list = document.getElementById('reflect-list');
+        const nextBtn1 = document.getElementById('reflect-next-1');
+        const nextBtn2 = document.getElementById('reflect-next-2');
+        const resetBtn = document.getElementById('reflect-reset');
+        const trapBtns = document.querySelectorAll('.trap-btn');
+        const trapResponse = document.getElementById('trap-response');
+
+        // Add item
+        function addItem() {
+            const text = input.value.trim();
+            if (!text) return;
+
+            reflectItems.push(text);
+            input.value = '';
+            renderReflectList();
+            nextBtn1.disabled = false;
+        }
+
+        addBtn.addEventListener('click', addItem);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addItem();
+        });
+
+        // Render list with remove buttons
+        function renderReflectList() {
+            list.innerHTML = reflectItems.map((item, i) => `
+                <li>
+                    <span>${item}</span>
+                    <button class="remove-btn" data-index="${i}">×</button>
+                </li>
+            `).join('');
+
+            // Attach remove handlers
+            list.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.dataset.index);
+                    reflectItems.splice(index, 1);
+                    renderReflectList();
+                    nextBtn1.disabled = reflectItems.length === 0;
+                });
+            });
+        }
+
+        // Step 1 -> Step 2
+        nextBtn1.addEventListener('click', () => {
+            document.getElementById('reflect-step-1').classList.remove('active');
+            document.getElementById('reflect-step-2').classList.add('active');
+
+            // Populate review
+            document.getElementById('item-count').textContent = reflectItems.length;
+            document.getElementById('reflect-review').innerHTML = reflectItems.map(item => `<li>${item}</li>`).join('');
+        });
+
+        // Trap buttons
+        trapBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const trap = btn.dataset.trap;
+                const responses = TRAP_RESPONSES[trap];
+                const response = getRandomItem(responses);
+                trapResponse.innerHTML = `<p>${response}</p>`;
+                trapResponse.classList.add('show');
+
+                // Highlight selected
+                trapBtns.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            });
+        });
+
+        // Step 2 -> Step 3 (Close the day)
+        nextBtn2.addEventListener('click', () => {
+            document.getElementById('reflect-step-2').classList.remove('active');
+            document.getElementById('reflect-step-3').classList.add('active');
+
+            // Show closing message
+            document.getElementById('close-message').textContent = getRandomItem(CLOSING_MESSAGES);
+
+            // Save reflection
+            const reflection = {
+                id: Date.now(),
+                items: [...reflectItems],
+                date: new Date().toISOString()
+            };
+            const reflections = getData(KEYS.REFLECTIONS);
+            reflections.unshift(reflection);
+            saveData(KEYS.REFLECTIONS, reflections);
+        });
+
+        // Reset
+        resetBtn.addEventListener('click', () => {
+            reflectItems = [];
+            document.getElementById('reflect-step-3').classList.remove('active');
+            document.getElementById('reflect-step-1').classList.add('active');
+            list.innerHTML = '';
+            nextBtn1.disabled = true;
+            trapResponse.classList.remove('show');
+            trapBtns.forEach(b => b.classList.remove('selected'));
+        });
+    }
+
+    // ============================================
     // Progress View
     // ============================================
     function renderProgress() {
@@ -609,18 +751,20 @@
         const wins = getData(KEYS.WINS);
         const releases = getData(KEYS.RELEASES);
         const reframes = getData(KEYS.REFRAMES);
+        const reflections = getData(KEYS.REFLECTIONS);
 
         // Update stats
         document.getElementById('total-checkins').textContent = checkins.length;
         document.getElementById('total-wins').textContent = wins.length;
         document.getElementById('total-releases').textContent = releases.length;
         document.getElementById('total-reframes').textContent = reframes.length;
+        document.getElementById('total-reflections').textContent = reflections.length;
 
         // Render check-in chart (last 7 days)
         renderCheckinChart(checkins);
 
         // Render recent activity
-        renderRecentActivity(checkins, wins, releases, reframes);
+        renderRecentActivity(checkins, wins, releases, reframes, reflections);
     }
 
     function renderCheckinChart(checkins) {
@@ -686,7 +830,7 @@
         detailEl.classList.add('show');
     }
 
-    function renderRecentActivity(checkins, wins, releases, reframes) {
+    function renderRecentActivity(checkins, wins, releases, reframes, reflections) {
         const activityList = document.getElementById('activity-list');
 
         // Combine all activities
@@ -694,7 +838,8 @@
             ...checkins.slice(0, 3).map(c => ({ type: 'Check-in', date: c.date, detail: `Level ${c.value}` })),
             ...wins.slice(0, 3).map(w => ({ type: 'Win', date: w.date, detail: w.text })),
             ...releases.slice(0, 3).map(r => ({ type: 'Released', date: r.date, detail: r.text })),
-            ...reframes.slice(0, 3).map(r => ({ type: 'Reframe', date: r.date, detail: '' }))
+            ...reframes.slice(0, 3).map(r => ({ type: 'Reframe', date: r.date, detail: '' })),
+            ...reflections.slice(0, 3).map(r => ({ type: 'Day closed', date: r.date, detail: `${r.items.length} things` }))
         ];
 
         // Sort by date, most recent first
@@ -756,6 +901,7 @@
         initReframe();
         initWins();
         initEnough();
+        initReflect();
         renderProgress();
 
         console.log('Steady initialized. You\'re doing enough.');

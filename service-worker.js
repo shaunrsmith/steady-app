@@ -1,5 +1,5 @@
 // Steady Service Worker - Offline Support
-const CACHE_NAME = 'steady-v1';
+const CACHE_NAME = 'steady-v2';
 const ASSETS = [
   '/',
   '/index.html',
