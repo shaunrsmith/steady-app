@@ -43,6 +43,10 @@
                 <button class="nav-btn" data-section="reframe">Reframe</button>
                 <button class="nav-btn" data-section="wins">Wins</button>
                 <button class="nav-btn" data-section="enough">Good Enough</button>
+                <button class="nav-btn" data-section="compassion">Compassion</button>
+                <button class="nav-btn" data-section="compare">Compare Detox</button>
+                <button class="nav-btn" data-section="mattering">Mattering</button>
+                <button class="nav-btn" data-section="winddown">Wind Down</button>
                 <button class="nav-btn" data-section="reflect">End of Day</button>
                 <button class="nav-btn" data-section="progress">Progress</button>
             </nav>
@@ -168,6 +172,155 @@
                 </div>
             </section>
 
+            <!-- Self-Compassion Prompts -->
+            <section id="compassion" class="section">
+                <h2>Compassion practice</h2>
+                <p class="section-desc">Talk to yourself like someone you love.</p>
+
+                <div class="compassion-modes">
+                    <button class="mode-btn active" data-compassion-mode="friend">Best friend lens</button>
+                    <button class="mode-btn" data-compassion-mode="child">Five-year-old you</button>
+                </div>
+
+                <div class="compassion-friend-mode" id="compassion-friend-mode">
+                    <div class="compassion-prompt-card">
+                        <p class="compassion-scenario">Think of something you're being hard on yourself about right now.</p>
+                    </div>
+                    <div class="compassion-input">
+                        <label for="compassion-struggle">What are you beating yourself up over?</label>
+                        <textarea id="compassion-struggle" placeholder="I didn't finish what I said I would..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="compassion-friend-btn">What would I tell my best friend?</button>
+                </div>
+
+                <div class="compassion-child-mode" id="compassion-child-mode" style="display: none;">
+                    <div class="compassion-prompt-card">
+                        <p class="compassion-scenario">Picture yourself at five years old. Small, trying hard, wanting to be good enough.</p>
+                    </div>
+                    <div class="compassion-input">
+                        <label for="compassion-child-struggle">What would five-year-old you be upset about?</label>
+                        <textarea id="compassion-child-struggle" placeholder="I tried so hard and it still wasn't right..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="compassion-child-btn">What would I say to that child?</button>
+                </div>
+
+                <div class="compassion-response" id="compassion-response"></div>
+
+                <div class="compassion-history">
+                    <h3>Past compassion moments</h3>
+                    <div class="history-list" id="compassion-list"></div>
+                </div>
+            </section>
+
+            <!-- Comparison Detox -->
+            <section id="compare" class="section">
+                <h2>Comparison detox</h2>
+                <p class="section-desc">You caught yourself comparing. That takes awareness. Let's work with it.</p>
+
+                <div class="compare-input">
+                    <label for="compare-thought">Who or what are you comparing yourself to?</label>
+                    <textarea id="compare-thought" placeholder="I saw someone who seems to have it all together..."></textarea>
+                </div>
+
+                <button class="primary-btn" id="compare-detox-btn">Detox this comparison</button>
+
+                <div class="compare-response" id="compare-response"></div>
+
+                <div class="compare-redirect" id="compare-redirect" style="display: none;">
+                    <h3>Now — back to you</h3>
+                    <p class="compare-redirect-prompt">Name one real thing you did recently that you're quietly proud of.</p>
+                    <div class="compare-redirect-input">
+                        <input type="text" id="compare-redirect-win" placeholder="Something small and real...">
+                        <button class="secondary-btn" id="compare-redirect-btn">Reclaim it</button>
+                    </div>
+                    <div class="compare-reclaim" id="compare-reclaim"></div>
+                </div>
+
+                <div class="compare-history">
+                    <h3>Detoxed comparisons</h3>
+                    <ul class="compare-list" id="compare-list"></ul>
+                </div>
+            </section>
+
+            <!-- Mattering Reminders -->
+            <section id="mattering" class="section">
+                <h2>You matter</h2>
+                <p class="section-desc">Not for what you do. For who you are.</p>
+
+                <div class="mattering-modes">
+                    <button class="mode-btn active" data-mattering-mode="valued">I am valued</button>
+                    <button class="mode-btn" data-mattering-mode="addvalue">I add value</button>
+                </div>
+
+                <div class="mattering-valued-mode" id="mattering-valued-mode">
+                    <div class="mattering-prompt-card" id="mattering-valued-prompt">
+                        <!-- Prompt loads here -->
+                    </div>
+                    <div class="mattering-input">
+                        <label for="mattering-valued-text">Your response</label>
+                        <textarea id="mattering-valued-text" placeholder="Take a moment to think about this..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="mattering-valued-btn">Save this reminder</button>
+                    <button class="secondary-btn mattering-skip" id="mattering-valued-skip">Try a different prompt</button>
+                </div>
+
+                <div class="mattering-addvalue-mode" id="mattering-addvalue-mode" style="display: none;">
+                    <div class="mattering-prompt-card" id="mattering-addvalue-prompt">
+                        <!-- Prompt loads here -->
+                    </div>
+                    <div class="mattering-input">
+                        <label for="mattering-addvalue-text">Your response</label>
+                        <textarea id="mattering-addvalue-text" placeholder="Even small things count..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="mattering-addvalue-btn">Save this reminder</button>
+                    <button class="secondary-btn mattering-skip" id="mattering-addvalue-skip">Try a different prompt</button>
+                </div>
+
+                <div class="feedback" id="mattering-feedback"></div>
+
+                <div class="mattering-history">
+                    <h3>Your mattering reminders</h3>
+                    <ul class="mattering-list" id="mattering-list"></ul>
+                </div>
+            </section>
+
+            <!-- Wind Down / Sleep Mode -->
+            <section id="winddown" class="section">
+                <h2>Wind down</h2>
+                <p class="section-desc">Put the day's thoughts down before sleep.</p>
+
+                <div class="winddown-step" id="winddown-step-1">
+                    <div class="winddown-prompt-card">
+                        <span class="winddown-icon">&#9790;</span>
+                        <p>Your mind is still carrying things from today. Let's set them down, one by one.</p>
+                    </div>
+
+                    <div class="winddown-input">
+                        <label for="winddown-thought">What's replaying in your mind right now?</label>
+                        <textarea id="winddown-thought" placeholder="That thing I said... the mistake I made... what I should have done..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="winddown-release-btn">Put it down</button>
+
+                    <div class="winddown-pile" id="winddown-pile">
+                        <!-- Released thoughts appear here -->
+                    </div>
+
+                    <button class="primary-btn" id="winddown-next-btn" style="display: none;">I've put enough down</button>
+                </div>
+
+                <div class="winddown-step" id="winddown-step-2" style="display: none;">
+                    <div class="winddown-closing" id="winddown-closing">
+                        <!-- Closing content renders here -->
+                    </div>
+                    <button class="secondary-btn" id="winddown-reset">Start over</button>
+                </div>
+
+                <div class="winddown-history">
+                    <h3>Past wind-downs</h3>
+                    <ul class="winddown-list" id="winddown-list"></ul>
+                </div>
+            </section>
+
             <!-- End of Day Reflection -->
             <section id="reflect" class="section">
                 <h2>Close the day</h2>
@@ -244,6 +397,22 @@
                     <div class="stat-card">
                         <span class="stat-number" id="total-reflections">0</span>
                         <span class="stat-label">Days closed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-compassion">0</span>
+                        <span class="stat-label">Compassion</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-detoxes">0</span>
+                        <span class="stat-label">Detoxed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-mattering">0</span>
+                        <span class="stat-label">Mattering</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-winddowns">0</span>
+                        <span class="stat-label">Wind-downs</span>
                     </div>
                 </div>
 
