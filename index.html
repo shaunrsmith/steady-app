@@ -36,15 +36,21 @@
             <p class="tagline">Progress, not perfection</p>
         </header>
 
-        <nav class="nav">
-            <button class="nav-btn active" data-section="checkin">Check In</button>
-            <button class="nav-btn" data-section="breathe">Breathe</button>
-            <button class="nav-btn" data-section="reframe">Reframe</button>
-            <button class="nav-btn" data-section="wins">Wins</button>
-            <button class="nav-btn" data-section="enough">Good Enough</button>
-            <button class="nav-btn" data-section="reflect">End of Day</button>
-            <button class="nav-btn" data-section="progress">Progress</button>
-        </nav>
+        <div class="nav-wrapper">
+            <nav class="nav">
+                <button class="nav-btn active" data-section="checkin">Check In</button>
+                <button class="nav-btn" data-section="breathe">Breathe</button>
+                <button class="nav-btn" data-section="reframe">Reframe</button>
+                <button class="nav-btn" data-section="wins">Wins</button>
+                <button class="nav-btn" data-section="enough">Good Enough</button>
+                <button class="nav-btn" data-section="compassion">Compassion</button>
+                <button class="nav-btn" data-section="compare">Compare Detox</button>
+                <button class="nav-btn" data-section="mattering">Mattering</button>
+                <button class="nav-btn" data-section="winddown">Wind Down</button>
+                <button class="nav-btn" data-section="reflect">End of Day</button>
+                <button class="nav-btn" data-section="progress">Progress</button>
+            </nav>
+        </div>
 
         <main class="main">
             <!-- Daily Check-In -->
@@ -166,56 +172,203 @@
                 </div>
             </section>
 
+            <!-- Self-Compassion Prompts -->
+            <section id="compassion" class="section">
+                <h2>Compassion practice</h2>
+                <p class="section-desc">Talk to yourself like someone you love.</p>
+
+                <div class="compassion-modes">
+                    <button class="mode-btn active" data-compassion-mode="friend">Best friend lens</button>
+                    <button class="mode-btn" data-compassion-mode="child">Five-year-old you</button>
+                </div>
+
+                <div class="compassion-friend-mode" id="compassion-friend-mode">
+                    <div class="compassion-prompt-card">
+                        <p class="compassion-scenario">Think of something you're being hard on yourself about right now.</p>
+                    </div>
+                    <div class="compassion-input">
+                        <label for="compassion-struggle">What are you beating yourself up over?</label>
+                        <textarea id="compassion-struggle" placeholder="I didn't finish what I said I would..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="compassion-friend-btn">What would I tell my best friend?</button>
+                </div>
+
+                <div class="compassion-child-mode" id="compassion-child-mode" style="display: none;">
+                    <div class="compassion-prompt-card">
+                        <p class="compassion-scenario">Picture yourself at five years old. Small, trying hard, wanting to be good enough.</p>
+                    </div>
+                    <div class="compassion-input">
+                        <label for="compassion-child-struggle">What would five-year-old you be upset about?</label>
+                        <textarea id="compassion-child-struggle" placeholder="I tried so hard and it still wasn't right..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="compassion-child-btn">What would I say to that child?</button>
+                </div>
+
+                <div class="compassion-response" id="compassion-response"></div>
+
+                <div class="compassion-history">
+                    <h3>Past compassion moments</h3>
+                    <div class="history-list" id="compassion-list"></div>
+                </div>
+            </section>
+
+            <!-- Comparison Detox -->
+            <section id="compare" class="section">
+                <h2>Comparison detox</h2>
+                <p class="section-desc">You caught yourself comparing. That takes awareness. Let's work with it.</p>
+
+                <div class="compare-input">
+                    <label for="compare-thought">Who or what are you comparing yourself to?</label>
+                    <textarea id="compare-thought" placeholder="I saw someone who seems to have it all together..."></textarea>
+                </div>
+
+                <button class="primary-btn" id="compare-detox-btn">Detox this comparison</button>
+
+                <div class="compare-response" id="compare-response"></div>
+
+                <div class="compare-redirect" id="compare-redirect" style="display: none;">
+                    <h3>Now — back to you</h3>
+                    <p class="compare-redirect-prompt">Name one real thing you did recently that you're quietly proud of.</p>
+                    <div class="compare-redirect-input">
+                        <input type="text" id="compare-redirect-win" placeholder="Something small and real...">
+                        <button class="secondary-btn" id="compare-redirect-btn">Reclaim it</button>
+                    </div>
+                    <div class="compare-reclaim" id="compare-reclaim"></div>
+                </div>
+
+                <div class="compare-history">
+                    <h3>Detoxed comparisons</h3>
+                    <ul class="compare-list" id="compare-list"></ul>
+                </div>
+            </section>
+
+            <!-- Mattering Reminders -->
+            <section id="mattering" class="section">
+                <h2>You matter</h2>
+                <p class="section-desc">Not for what you do. For who you are.</p>
+
+                <div class="mattering-modes">
+                    <button class="mode-btn active" data-mattering-mode="valued">I am valued</button>
+                    <button class="mode-btn" data-mattering-mode="addvalue">I add value</button>
+                </div>
+
+                <div class="mattering-valued-mode" id="mattering-valued-mode">
+                    <div class="mattering-prompt-card" id="mattering-valued-prompt">
+                        <!-- Prompt loads here -->
+                    </div>
+                    <div class="mattering-input">
+                        <label for="mattering-valued-text">Your response</label>
+                        <textarea id="mattering-valued-text" placeholder="Take a moment to think about this..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="mattering-valued-btn">Save this reminder</button>
+                    <button class="secondary-btn mattering-skip" id="mattering-valued-skip">Try a different prompt</button>
+                </div>
+
+                <div class="mattering-addvalue-mode" id="mattering-addvalue-mode" style="display: none;">
+                    <div class="mattering-prompt-card" id="mattering-addvalue-prompt">
+                        <!-- Prompt loads here -->
+                    </div>
+                    <div class="mattering-input">
+                        <label for="mattering-addvalue-text">Your response</label>
+                        <textarea id="mattering-addvalue-text" placeholder="Even small things count..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="mattering-addvalue-btn">Save this reminder</button>
+                    <button class="secondary-btn mattering-skip" id="mattering-addvalue-skip">Try a different prompt</button>
+                </div>
+
+                <div class="feedback" id="mattering-feedback"></div>
+
+                <div class="mattering-history">
+                    <h3>Your mattering reminders</h3>
+                    <ul class="mattering-list" id="mattering-list"></ul>
+                </div>
+            </section>
+
+            <!-- Wind Down / Sleep Mode -->
+            <section id="winddown" class="section">
+                <h2>Wind down</h2>
+                <p class="section-desc">Put the day's thoughts down before sleep.</p>
+
+                <div class="winddown-step" id="winddown-step-1">
+                    <div class="winddown-prompt-card">
+                        <span class="winddown-icon">&#9790;</span>
+                        <p>Your mind is still carrying things from today. Let's set them down, one by one.</p>
+                    </div>
+
+                    <div class="winddown-input">
+                        <label for="winddown-thought">What's replaying in your mind right now?</label>
+                        <textarea id="winddown-thought" placeholder="That thing I said... the mistake I made... what I should have done..."></textarea>
+                    </div>
+                    <button class="primary-btn" id="winddown-release-btn">Put it down</button>
+
+                    <div class="winddown-pile" id="winddown-pile">
+                        <!-- Released thoughts appear here -->
+                    </div>
+
+                    <button class="primary-btn" id="winddown-next-btn" style="display: none;">I've put enough down</button>
+                </div>
+
+                <div class="winddown-step" id="winddown-step-2" style="display: none;">
+                    <div class="winddown-closing" id="winddown-closing">
+                        <!-- Closing content renders here -->
+                    </div>
+                    <button class="secondary-btn" id="winddown-reset">Start over</button>
+                </div>
+
+                <div class="winddown-history">
+                    <h3>Past wind-downs</h3>
+                    <ul class="winddown-list" id="winddown-list"></ul>
+                </div>
+            </section>
+
             <!-- End of Day Reflection -->
             <section id="reflect" class="section">
                 <h2>Close the day</h2>
-                <p class="section-desc">See what you did. Release what you didn't.</p>
+                <p class="section-desc">Look back gently. You did more than you think.</p>
 
-                <div class="reflect-steps">
-                    <!-- Step 1: List what you did -->
-                    <div class="reflect-step active" id="reflect-step-1">
-                        <h3>What did you do today?</h3>
-                        <p class="step-hint">Small things count. Got dressed? Ate? Replied to a message?</p>
+                <div class="reflect-step" id="reflect-step-1">
+                    <label for="reflect-items">What did you actually do today?</label>
+                    <p class="reflect-hint">Small things count. Got dressed? Ate? Replied to a message? List anything.</p>
+                    <div class="reflect-entries" id="reflect-entries">
+                        <!-- Entries will be added here -->
+                    </div>
+                    <div class="reflect-add">
+                        <input type="text" id="reflect-item-input" placeholder="I did this one thing...">
+                        <button class="secondary-btn reflect-add-btn" id="add-reflect-item">Add</button>
+                    </div>
+                    <button class="primary-btn" id="reflect-next" disabled>See what I did</button>
+                </div>
 
-                        <div class="reflect-input">
-                            <input type="text" id="reflect-item" placeholder="I...">
-                            <button class="add-btn" id="add-reflect-item">+</button>
-                        </div>
-
-                        <ul class="reflect-list" id="reflect-list"></ul>
-
-                        <button class="primary-btn" id="reflect-next-1" disabled>See my day</button>
+                <div class="reflect-step" id="reflect-step-2" style="display: none;">
+                    <div class="reflect-summary" id="reflect-summary">
+                        <!-- Summary renders here -->
                     </div>
 
-                    <!-- Step 2: Review and identify traps -->
-                    <div class="reflect-step" id="reflect-step-2">
-                        <h3>You did <span id="item-count">0</span> things today</h3>
-                        <p class="step-affirm">Read that list. That was you. That was real.</p>
-
-                        <ul class="reflect-review" id="reflect-review"></ul>
-
-                        <div class="trap-section">
-                            <p class="trap-prompt">Is a productivity trap pulling at you?</p>
-                            <div class="trap-buttons">
-                                <button class="trap-btn" data-trap="goalpost">I keep moving the goalpost</button>
-                                <button class="trap-btn" data-trap="compare">I'm comparing myself to others</button>
-                                <button class="trap-btn" data-trap="discount">I'm discounting what I did</button>
-                                <button class="trap-btn" data-trap="undone">I'm focused on what I didn't do</button>
-                            </div>
-                            <div class="trap-response" id="trap-response"></div>
+                    <div class="reflect-traps">
+                        <h3>Do any of these feel familiar right now?</h3>
+                        <div class="trap-list" id="trap-list">
+                            <button class="trap-btn" data-trap="goalposts">I keep moving the goalpost</button>
+                            <button class="trap-btn" data-trap="comparing">I'm comparing myself to others</button>
+                            <button class="trap-btn" data-trap="discounting">I'm discounting what I did</button>
+                            <button class="trap-btn" data-trap="shouldhave">I'm focused on what I didn't do</button>
                         </div>
-
-                        <button class="primary-btn" id="reflect-next-2">Close the day</button>
+                        <div class="trap-response" id="trap-response">
+                            <!-- Trap-specific response appears here -->
+                        </div>
                     </div>
 
-                    <!-- Step 3: Closing -->
-                    <div class="reflect-step" id="reflect-step-3">
-                        <div class="reflect-close">
-                            <span class="close-icon">🌙</span>
-                            <p class="close-message" id="close-message"></p>
-                        </div>
-                        <button class="secondary-btn" id="reflect-reset">Start a new reflection</button>
+                    <button class="primary-btn reflect-close-btn" id="close-the-day">Close the day</button>
+                </div>
+
+                <div class="reflect-step" id="reflect-step-3" style="display: none;">
+                    <div class="reflect-closed" id="reflect-closed">
+                        <!-- Closing message renders here -->
                     </div>
+                </div>
+
+                <div class="reflect-history">
+                    <h3>Past reflections</h3>
+                    <ul class="reflect-list" id="reflect-list"></ul>
                 </div>
             </section>
 
@@ -244,6 +397,22 @@
                     <div class="stat-card">
                         <span class="stat-number" id="total-reflections">0</span>
                         <span class="stat-label">Days closed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-compassion">0</span>
+                        <span class="stat-label">Compassion</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-detoxes">0</span>
+                        <span class="stat-label">Detoxed</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-mattering">0</span>
+                        <span class="stat-label">Mattering</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="total-winddowns">0</span>
+                        <span class="stat-label">Wind-downs</span>
                     </div>
                 </div>
 

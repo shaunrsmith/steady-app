@@ -38,7 +38,11 @@
         WINS: 'steady_wins',
         RELEASES: 'steady_releases',
         REFRAMES: 'steady_reframes',
-        REFLECTIONS: 'steady_reflections'
+        REFLECTIONS: 'steady_reflections',
+        COMPASSION: 'steady_compassion',
+        COMPARISONS: 'steady_comparisons',
+        MATTERING: 'steady_mattering',
+        WINDDOWNS: 'steady_winddowns'
     };
 
     // ============================================
@@ -107,40 +111,6 @@
             "The thing you're worried about is probably invisible to everyone else. They see the whole you."
         ]
     };
-
-    // ============================================
-    // Productivity Trap Responses
-    // ============================================
-    const TRAP_RESPONSES = {
-        goalpost: [
-            "The finish line keeps moving because perfectionism moves it. Notice: you did cross lines today. They just got erased.",
-            "What would 'done' look like if you weren't allowed to add anything else? That's the real finish line.",
-            "The goalpost will always move if you let it. You can choose to stop chasing and just... stand here. This is enough ground."
-        ],
-        compare: [
-            "You're comparing your behind-the-scenes to someone else's highlight reel. They have messy days too.",
-            "Their path isn't yours. Their pace isn't yours. Your only job is to take your next step.",
-            "Someone out there is comparing themselves to you and feeling inadequate. That's how arbitrary this is."
-        ],
-        discount: [
-            "If a friend told you they did what you did today, would you say 'that doesn't count'? Be that friend to yourself.",
-            "The things you're dismissing are things. You did them. They happened. That's not nothing.",
-            "Small is not the same as worthless. A single step is still forward motion."
-        ],
-        undone: [
-            "The undone list is infinite. It will never be empty. That's not a flaw in you — that's life.",
-            "Focusing on what you didn't do is like looking at an ocean and only seeing the fish that got away.",
-            "Tomorrow exists. The undone things aren't going anywhere. But neither is your worth."
-        ]
-    };
-
-    const CLOSING_MESSAGES = [
-        "The day is closed. Not because everything got done — because you decided to stop carrying it.",
-        "You showed up. You did things. You're letting go now. That's a complete day.",
-        "Tomorrow is a new page. Tonight, this one is finished.",
-        "Done doesn't mean perfect. Done means you're allowed to rest now.",
-        "The day held what it held. You carried what you carried. Now, set it down."
-    ];
 
     // ============================================
     // Utility Functions
@@ -219,6 +189,16 @@
         const navBtns = document.querySelectorAll('.nav-btn');
         const sections = document.querySelectorAll('.section');
 
+        // Scroll hint: hide fade when scrolled to the end
+        const navEl = document.querySelector('.nav');
+        const navWrapper = document.querySelector('.nav-wrapper');
+        if (navEl && navWrapper) {
+            navEl.addEventListener('scroll', () => {
+                const atEnd = navEl.scrollLeft + navEl.offsetWidth >= navEl.scrollWidth - 4;
+                navWrapper.classList.toggle('scrolled-end', atEnd);
+            });
+        }
+
         navBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const targetSection = btn.dataset.section;
@@ -230,6 +210,9 @@
                 // Update sections
                 sections.forEach(s => s.classList.remove('active'));
                 document.getElementById(targetSection).classList.add('active');
+
+                // Scroll nav to show active tab
+                btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
                 // Refresh progress view if navigating there
                 if (targetSection === 'progress') {
@@ -637,110 +620,398 @@
     }
 
     // ============================================
-    // End of Day Reflection
+    // Self-Compassion Prompts
     // ============================================
-    let reflectItems = [];
+    const COMPASSION_FRIEND = [
+        "If your best friend told you they were struggling with this, you wouldn't say 'try harder.' You'd say: 'I see you. You're doing more than you realize.'",
+        "You'd never tell your best friend they're not good enough. So why are you saying it to yourself? You deserve the same kindness you give others.",
+        "Imagine your friend said these exact words to you. You'd hold space for them. You'd remind them that one bad moment doesn't define them. Now do that for yourself.",
+        "Your best friend wouldn't need to be perfect for you to love them. Neither do you.",
+        "You'd tell your friend: 'It's okay. You tried. That matters.' Can you hear yourself saying that — to you?",
+        "If your friend was this exhausted and still beating themselves up, you'd say: 'Please stop. You've done enough. Rest now.'"
+    ];
 
-    function initReflect() {
-        const input = document.getElementById('reflect-item');
-        const addBtn = document.getElementById('add-reflect-item');
-        const list = document.getElementById('reflect-list');
-        const nextBtn1 = document.getElementById('reflect-next-1');
-        const nextBtn2 = document.getElementById('reflect-next-2');
-        const resetBtn = document.getElementById('reflect-reset');
-        const trapBtns = document.querySelectorAll('.trap-btn');
-        const trapResponse = document.getElementById('trap-response');
+    const COMPASSION_CHILD = [
+        "That five-year-old didn't need to be perfect to deserve love. Neither do you, right now, today.",
+        "Little you just wanted to be told: 'You're okay. You don't have to earn your place here.' You can tell yourself that now.",
+        "Picture that small kid, trying so hard, worried about getting it right. Would you ever tell them they're not enough? Then don't tell yourself that either.",
+        "Five-year-old you didn't know what 'perfect' meant yet. They just wanted to belong. You still deserve to belong — without conditions.",
+        "That child was already whole. Nothing was missing. Nothing needed to be fixed. That's still true.",
+        "If five-year-old you was crying because they made a mistake, you'd kneel down and say: 'Hey. It's okay. Everyone makes mistakes.' Say it to yourself now."
+    ];
 
-        // Add item
-        function addItem() {
-            const text = input.value.trim();
-            if (!text) return;
+    function initCompassion() {
+        const modeBtns = document.querySelectorAll('[data-compassion-mode]');
+        const friendMode = document.getElementById('compassion-friend-mode');
+        const childMode = document.getElementById('compassion-child-mode');
+        const friendBtn = document.getElementById('compassion-friend-btn');
+        const childBtn = document.getElementById('compassion-child-btn');
+        const response = document.getElementById('compassion-response');
 
-            reflectItems.push(text);
-            input.value = '';
-            renderReflectList();
-            nextBtn1.disabled = false;
-        }
-
-        addBtn.addEventListener('click', addItem);
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addItem();
-        });
-
-        // Render list with remove buttons
-        function renderReflectList() {
-            list.innerHTML = reflectItems.map((item, i) => `
-                <li>
-                    <span>${item}</span>
-                    <button class="remove-btn" data-index="${i}">×</button>
-                </li>
-            `).join('');
-
-            // Attach remove handlers
-            list.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const index = parseInt(btn.dataset.index);
-                    reflectItems.splice(index, 1);
-                    renderReflectList();
-                    nextBtn1.disabled = reflectItems.length === 0;
-                });
-            });
-        }
-
-        // Step 1 -> Step 2
-        nextBtn1.addEventListener('click', () => {
-            document.getElementById('reflect-step-1').classList.remove('active');
-            document.getElementById('reflect-step-2').classList.add('active');
-
-            // Populate review
-            document.getElementById('item-count').textContent = reflectItems.length;
-            document.getElementById('reflect-review').innerHTML = reflectItems.map(item => `<li>${item}</li>`).join('');
-        });
-
-        // Trap buttons
-        trapBtns.forEach(btn => {
+        modeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                const trap = btn.dataset.trap;
-                const responses = TRAP_RESPONSES[trap];
-                const response = getRandomItem(responses);
-                trapResponse.innerHTML = `<p>${response}</p>`;
-                trapResponse.classList.add('show');
-
-                // Highlight selected
-                trapBtns.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                response.classList.remove('show');
+                if (btn.dataset.compassionMode === 'friend') {
+                    friendMode.style.display = 'block';
+                    childMode.style.display = 'none';
+                } else {
+                    friendMode.style.display = 'none';
+                    childMode.style.display = 'block';
+                }
             });
         });
 
-        // Step 2 -> Step 3 (Close the day)
-        nextBtn2.addEventListener('click', () => {
-            document.getElementById('reflect-step-2').classList.remove('active');
-            document.getElementById('reflect-step-3').classList.add('active');
+        friendBtn.addEventListener('click', () => {
+            const struggle = document.getElementById('compassion-struggle').value.trim();
+            if (!struggle) return;
+            const msg = getRandomItem(COMPASSION_FRIEND);
+            showCompassionResponse(response, msg, struggle, 'friend');
+            document.getElementById('compassion-struggle').value = '';
+        });
 
-            // Show closing message
-            document.getElementById('close-message').textContent = getRandomItem(CLOSING_MESSAGES);
+        childBtn.addEventListener('click', () => {
+            const struggle = document.getElementById('compassion-child-struggle').value.trim();
+            if (!struggle) return;
+            const msg = getRandomItem(COMPASSION_CHILD);
+            showCompassionResponse(response, msg, struggle, 'child');
+            document.getElementById('compassion-child-struggle').value = '';
+        });
 
-            // Save reflection
-            const reflection = {
+        renderCompassionHistory();
+    }
+
+    function showCompassionResponse(el, message, struggle, mode) {
+        el.innerHTML = `<p class="compassion-response-text">${message}</p>`;
+        el.classList.add('show');
+
+        const entry = {
+            id: Date.now(),
+            struggle: struggle,
+            response: message,
+            mode: mode,
+            date: new Date().toISOString()
+        };
+        const data = getData(KEYS.COMPASSION);
+        data.unshift(entry);
+        saveData(KEYS.COMPASSION, data.slice(0, 50));
+        renderCompassionHistory();
+    }
+
+    function renderCompassionHistory() {
+        const list = document.getElementById('compassion-list');
+        const items = getData(KEYS.COMPASSION).slice(0, 5);
+        if (items.length === 0) {
+            list.innerHTML = '<p class="empty-state">Your compassion moments will appear here</p>';
+            return;
+        }
+        list.innerHTML = items.map(c => `
+            <div class="history-item">
+                <div class="thought">"${c.struggle}"</div>
+                <div class="reframe">${c.response}</div>
+                <div class="date">${formatDate(c.date)}</div>
+            </div>
+        `).join('');
+    }
+
+    // ============================================
+    // Comparison Detox
+    // ============================================
+    const COMPARE_REFRAMES = [
+        "You're comparing your behind-the-scenes to someone else's highlight reel. You don't know their struggles, their doubts, their 3am thoughts. You only see the curated version.",
+        "Comparison is odious — Shakespeare knew that centuries ago. The game is rigged: you'll always find someone who seems to be doing better. But 'seems' is the key word.",
+        "That person you're comparing yourself to? They're probably comparing themselves to someone else right now. Nobody wins the comparison game. The only way to win is not to play.",
+        "Social media shows you the painting, never the messy studio. The confident post, never the 47 drafts before it. You're comparing your rough draft to someone else's final edit.",
+        "Other people's output is not your benchmark. You are living your life, with your brain, your energy, your circumstances. That's the only fair comparison — you versus yesterday's you.",
+        "What if the person you're comparing yourself to is also pretending? Research shows most people curate their lives to look effortless. It's a facade — for almost everyone.",
+        "Comparison steals the credit from what you actually accomplished. Your wins don't shrink because someone else also has wins."
+    ];
+
+    const COMPARE_RECLAIM_MESSAGES = [
+        "That's yours. Nobody else's highlight reel changes that.",
+        "Real. Solid. Yours. No comparison can take it away.",
+        "See? You're not behind. You're right here, doing real things.",
+        "That happened because of you. Hold onto it.",
+        "This is what's real. Everything else is noise."
+    ];
+
+    function initCompare() {
+        const detoxBtn = document.getElementById('compare-detox-btn');
+        const response = document.getElementById('compare-response');
+        const redirect = document.getElementById('compare-redirect');
+        const reclaimBtn = document.getElementById('compare-redirect-btn');
+        const reclaimEl = document.getElementById('compare-reclaim');
+
+        detoxBtn.addEventListener('click', () => {
+            const thought = document.getElementById('compare-thought').value.trim();
+            if (!thought) return;
+
+            const reframe = getRandomItem(COMPARE_REFRAMES);
+            response.innerHTML = `<p>${reframe}</p>`;
+            response.classList.add('show');
+            redirect.style.display = 'block';
+
+            const entry = {
                 id: Date.now(),
-                items: [...reflectItems],
+                thought: thought,
+                reframe: reframe,
                 date: new Date().toISOString()
             };
-            const reflections = getData(KEYS.REFLECTIONS);
-            reflections.unshift(reflection);
-            saveData(KEYS.REFLECTIONS, reflections);
+            const data = getData(KEYS.COMPARISONS);
+            data.unshift(entry);
+            saveData(KEYS.COMPARISONS, data.slice(0, 50));
+
+            document.getElementById('compare-thought').value = '';
+            renderCompareHistory();
         });
 
-        // Reset
-        resetBtn.addEventListener('click', () => {
-            reflectItems = [];
-            document.getElementById('reflect-step-3').classList.remove('active');
-            document.getElementById('reflect-step-1').classList.add('active');
-            list.innerHTML = '';
-            nextBtn1.disabled = true;
-            trapResponse.classList.remove('show');
-            trapBtns.forEach(b => b.classList.remove('selected'));
+        reclaimBtn.addEventListener('click', () => {
+            const win = document.getElementById('compare-redirect-win').value.trim();
+            if (!win) return;
+            const msg = getRandomItem(COMPARE_RECLAIM_MESSAGES);
+            reclaimEl.innerHTML = `<p class="compare-reclaim-text">${msg}</p>`;
+            reclaimEl.classList.add('show');
+            document.getElementById('compare-redirect-win').value = '';
+
+            // Also save as a micro-win
+            const winData = { id: Date.now(), text: win, date: new Date().toISOString() };
+            const wins = getData(KEYS.WINS);
+            wins.unshift(winData);
+            saveData(KEYS.WINS, wins);
         });
+
+        renderCompareHistory();
+    }
+
+    function renderCompareHistory() {
+        const list = document.getElementById('compare-list');
+        const items = getData(KEYS.COMPARISONS).slice(0, 5);
+        if (items.length === 0) {
+            list.innerHTML = '<li class="empty-state">Your detoxed comparisons will appear here</li>';
+            return;
+        }
+        list.innerHTML = items.map(c => `
+            <li>
+                <span class="compare-text">${c.thought.substring(0, 60)}${c.thought.length > 60 ? '...' : ''}</span>
+                <span class="compare-date">${formatDate(c.date)}</span>
+            </li>
+        `).join('');
+    }
+
+    // ============================================
+    // Mattering Reminders
+    // ============================================
+    const MATTERING_VALUED_PROMPTS = [
+        "Who is one person who would notice if you weren't here tomorrow? What do they see in you that has nothing to do with your achievements?",
+        "Think of a time someone was genuinely glad to see you — not for what you could do for them, but just because you showed up. What was that like?",
+        "What's one quality about you that has nothing to do with productivity, success, or appearance? Something that just... is you.",
+        "If someone who loves you had to describe you without mentioning your job, your grades, or anything you've accomplished — what would they say?",
+        "When was the last time someone thanked you — not for a task, but for being you? If you can't remember one, that doesn't mean it didn't happen. It means you weren't counting.",
+        "You matter to someone right now, in this moment, whether you know it or not. Who might that be?"
+    ];
+
+    const MATTERING_ADDVALUE_PROMPTS = [
+        "Who relied on you recently — even in a small way? A text reply, holding a door, listening for a moment. What did you give them?",
+        "Think of someone whose day you made a little better this week. It doesn't have to be dramatic. A smile counts. Showing up counts.",
+        "What's one thing you do for others that you rarely get credit for? The invisible labor, the quiet kindness, the things no one sees.",
+        "Is there someone who feels safer, calmer, or less alone because you exist in their life? Who is that person?",
+        "What's something you contribute to your household, your family, your community, or your friendships that would be missed if you stopped?",
+        "When was the last time you helped someone without being asked? What moved you to do it?"
+    ];
+
+    const MATTERING_RESPONSES = [
+        "This is real. This is evidence that you matter — not for what you produce, but for who you are.",
+        "Read that back to yourself. That's not nothing. That's proof of your place in this world.",
+        "You matter. Not because of what you do. Because of who you are to the people around you.",
+        "This is the kind of thing perfectionism wants you to overlook. Don't let it. You matter here.",
+        "Saved. Come back and read this on the days when the voice says you're not enough."
+    ];
+
+    function initMattering() {
+        const modeBtns = document.querySelectorAll('[data-mattering-mode]');
+        const valuedMode = document.getElementById('mattering-valued-mode');
+        const addvalueMode = document.getElementById('mattering-addvalue-mode');
+        const valuedPromptEl = document.getElementById('mattering-valued-prompt');
+        const addvaluePromptEl = document.getElementById('mattering-addvalue-prompt');
+        const feedback = document.getElementById('mattering-feedback');
+
+        function showPrompt(el, prompts) {
+            el.innerHTML = `<p class="mattering-prompt-text">${getRandomItem(prompts)}</p>`;
+        }
+
+        // Initial prompts
+        showPrompt(valuedPromptEl, MATTERING_VALUED_PROMPTS);
+        showPrompt(addvaluePromptEl, MATTERING_ADDVALUE_PROMPTS);
+
+        // Mode switching
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (btn.dataset.matteringMode === 'valued') {
+                    valuedMode.style.display = 'block';
+                    addvalueMode.style.display = 'none';
+                } else {
+                    valuedMode.style.display = 'none';
+                    addvalueMode.style.display = 'block';
+                }
+            });
+        });
+
+        // Skip buttons
+        document.getElementById('mattering-valued-skip').addEventListener('click', () => {
+            showPrompt(valuedPromptEl, MATTERING_VALUED_PROMPTS);
+        });
+        document.getElementById('mattering-addvalue-skip').addEventListener('click', () => {
+            showPrompt(addvaluePromptEl, MATTERING_ADDVALUE_PROMPTS);
+        });
+
+        // Save buttons
+        document.getElementById('mattering-valued-btn').addEventListener('click', () => {
+            const text = document.getElementById('mattering-valued-text').value.trim();
+            if (!text) return;
+            saveMatteringEntry(text, 'valued', valuedPromptEl.textContent, feedback);
+            document.getElementById('mattering-valued-text').value = '';
+            showPrompt(valuedPromptEl, MATTERING_VALUED_PROMPTS);
+        });
+
+        document.getElementById('mattering-addvalue-btn').addEventListener('click', () => {
+            const text = document.getElementById('mattering-addvalue-text').value.trim();
+            if (!text) return;
+            saveMatteringEntry(text, 'addvalue', addvaluePromptEl.textContent, feedback);
+            document.getElementById('mattering-addvalue-text').value = '';
+            showPrompt(addvaluePromptEl, MATTERING_ADDVALUE_PROMPTS);
+        });
+
+        renderMatteringHistory();
+    }
+
+    function saveMatteringEntry(text, mode, prompt, feedback) {
+        const entry = {
+            id: Date.now(),
+            text: text,
+            mode: mode,
+            prompt: prompt,
+            date: new Date().toISOString()
+        };
+        const data = getData(KEYS.MATTERING);
+        data.unshift(entry);
+        saveData(KEYS.MATTERING, data.slice(0, 50));
+        showFeedback(feedback, getRandomItem(MATTERING_RESPONSES), 'success');
+        renderMatteringHistory();
+    }
+
+    function renderMatteringHistory() {
+        const list = document.getElementById('mattering-list');
+        const items = getData(KEYS.MATTERING).slice(0, 8);
+        if (items.length === 0) {
+            list.innerHTML = '<li class="empty-state">Your mattering reminders will appear here</li>';
+            return;
+        }
+        list.innerHTML = items.map(m => `
+            <li>
+                <span class="mattering-text">${m.text.substring(0, 60)}${m.text.length > 60 ? '...' : ''}</span>
+                <span class="mattering-date">${formatDate(m.date)}</span>
+            </li>
+        `).join('');
+    }
+
+    // ============================================
+    // Wind Down / Sleep Mode
+    // ============================================
+    const WINDDOWN_RELEASE_MESSAGES = [
+        "Set down. It's not yours to carry tonight.",
+        "Released. That thought can wait until morning.",
+        "Put down. Your pillow doesn't need to hold this too.",
+        "Let go for now. Tomorrow-you can pick it back up if needed.",
+        "Down it goes. One less thing between you and rest."
+    ];
+
+    const WINDDOWN_CLOSING = [
+        "You've set down what you were carrying. The thoughts may try to come back — that's okay. You've already practiced letting go once tonight. You can do it again.\n\nThe day is done. You don't need to solve anything else. Sleep is not a reward for a productive day. It's a human need, and you deserve it.",
+        "Look at what you put down. Those thoughts felt urgent, but they'll still be there tomorrow if they need to be. Tonight, they don't need you.\n\nYour brain is trying to protect you by replaying things. But you're safe. Nothing needs to be solved right now. Let your body rest.",
+        "Every thought you released was a small act of self-compassion. You chose rest over rumination. That's not lazy — that's brave.\n\nThe mistakes you're replaying? They're proof you care. But caring doesn't require losing sleep. Goodnight.",
+        "You showed up today. You did what you could. The parts that didn't go perfectly? They're human. You're human.\n\nNobody is lying awake judging you as harshly as you judge yourself. Let that sink in. Now let yourself sink into rest."
+    ];
+
+    function initWinddown() {
+        const releaseBtn = document.getElementById('winddown-release-btn');
+        const nextBtn = document.getElementById('winddown-next-btn');
+        const pile = document.getElementById('winddown-pile');
+        const input = document.getElementById('winddown-thought');
+        let releasedThoughts = [];
+
+        releaseBtn.addEventListener('click', () => {
+            const thought = input.value.trim();
+            if (!thought) return;
+
+            releasedThoughts.push(thought);
+            input.value = '';
+
+            const msg = getRandomItem(WINDDOWN_RELEASE_MESSAGES);
+            const item = document.createElement('div');
+            item.className = 'winddown-pile-item';
+            item.innerHTML = `
+                <span class="winddown-pile-thought">${thought}</span>
+                <span class="winddown-pile-msg">${msg}</span>
+            `;
+            pile.appendChild(item);
+
+            nextBtn.style.display = 'block';
+            input.focus();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            document.getElementById('winddown-step-1').style.display = 'none';
+            document.getElementById('winddown-step-2').style.display = 'block';
+
+            const closing = document.getElementById('winddown-closing');
+            const msg = getRandomItem(WINDDOWN_CLOSING);
+            closing.innerHTML = `
+                <span class="winddown-closing-icon">&#9790;</span>
+                <p class="winddown-closing-count">You set down <strong>${releasedThoughts.length} thought${releasedThoughts.length === 1 ? '' : 's'}</strong> tonight.</p>
+                <p class="winddown-closing-message">${msg.replace(/\n/g, '<br>')}</p>
+            `;
+            closing.classList.add('show');
+
+            // Save
+            const entry = {
+                id: Date.now(),
+                thoughts: [...releasedThoughts],
+                date: new Date().toISOString()
+            };
+            const data = getData(KEYS.WINDDOWNS);
+            data.unshift(entry);
+            saveData(KEYS.WINDDOWNS, data.slice(0, 30));
+            renderWinddownHistory();
+        });
+
+        document.getElementById('winddown-reset').addEventListener('click', () => {
+            releasedThoughts = [];
+            pile.innerHTML = '';
+            nextBtn.style.display = 'none';
+            document.getElementById('winddown-step-2').style.display = 'none';
+            document.getElementById('winddown-step-1').style.display = 'block';
+            document.getElementById('winddown-closing').classList.remove('show');
+        });
+
+        renderWinddownHistory();
+    }
+
+    function renderWinddownHistory() {
+        const list = document.getElementById('winddown-list');
+        const items = getData(KEYS.WINDDOWNS).slice(0, 5);
+        if (items.length === 0) {
+            list.innerHTML = '<li class="empty-state">Your wind-downs will appear here</li>';
+            return;
+        }
+        list.innerHTML = items.map(w => `
+            <li>
+                <span class="winddown-history-text">${w.thoughts.length} thought${w.thoughts.length === 1 ? '' : 's'} released</span>
+                <span class="winddown-history-date">${formatDate(w.date)}</span>
+            </li>
+        `).join('');
     }
 
     // ============================================
@@ -752,6 +1023,10 @@
         const releases = getData(KEYS.RELEASES);
         const reframes = getData(KEYS.REFRAMES);
         const reflections = getData(KEYS.REFLECTIONS);
+        const compassion = getData(KEYS.COMPASSION);
+        const comparisons = getData(KEYS.COMPARISONS);
+        const mattering = getData(KEYS.MATTERING);
+        const winddowns = getData(KEYS.WINDDOWNS);
 
         // Update stats
         document.getElementById('total-checkins').textContent = checkins.length;
@@ -759,6 +1034,10 @@
         document.getElementById('total-releases').textContent = releases.length;
         document.getElementById('total-reframes').textContent = reframes.length;
         document.getElementById('total-reflections').textContent = reflections.length;
+        document.getElementById('total-compassion').textContent = compassion.length;
+        document.getElementById('total-detoxes').textContent = comparisons.length;
+        document.getElementById('total-mattering').textContent = mattering.length;
+        document.getElementById('total-winddowns').textContent = winddowns.length;
 
         // Render check-in chart (last 7 days)
         renderCheckinChart(checkins);
@@ -832,6 +1111,10 @@
 
     function renderRecentActivity(checkins, wins, releases, reframes, reflections) {
         const activityList = document.getElementById('activity-list');
+        const compassion = getData(KEYS.COMPASSION);
+        const comparisons = getData(KEYS.COMPARISONS);
+        const mattering = getData(KEYS.MATTERING);
+        const winddowns = getData(KEYS.WINDDOWNS);
 
         // Combine all activities
         const all = [
@@ -839,7 +1122,11 @@
             ...wins.slice(0, 3).map(w => ({ type: 'Win', date: w.date, detail: w.text })),
             ...releases.slice(0, 3).map(r => ({ type: 'Released', date: r.date, detail: r.text })),
             ...reframes.slice(0, 3).map(r => ({ type: 'Reframe', date: r.date, detail: '' })),
-            ...reflections.slice(0, 3).map(r => ({ type: 'Day closed', date: r.date, detail: `${r.items.length} things` }))
+            ...reflections.slice(0, 3).map(r => ({ type: 'Reflection', date: r.date, detail: `${r.items.length} thing${r.items.length === 1 ? '' : 's'}` })),
+            ...compassion.slice(0, 3).map(c => ({ type: 'Compassion', date: c.date, detail: c.mode })),
+            ...comparisons.slice(0, 3).map(c => ({ type: 'Detox', date: c.date, detail: '' })),
+            ...mattering.slice(0, 3).map(m => ({ type: 'Mattering', date: m.date, detail: m.mode })),
+            ...winddowns.slice(0, 3).map(w => ({ type: 'Wind-down', date: w.date, detail: `${w.thoughts.length} thought${w.thoughts.length === 1 ? '' : 's'}` }))
         ];
 
         // Sort by date, most recent first
@@ -856,6 +1143,180 @@
             <li>
                 <span class="activity-type">${a.type}</span>
                 <span class="activity-date">${formatDate(a.date)} ${formatTime(a.date)}</span>
+            </li>
+        `).join('');
+    }
+
+    // ============================================
+    // End of Day Reflection
+    // ============================================
+    const TRAP_RESPONSES = {
+        goalposts: [
+            "Notice that: you finished something, and instead of letting it count, you raised the bar. The goalpost moved — but you didn't fail. The game changed without your permission.",
+            "The finish line isn't real. Your brain invented it, then moved it. What you did today was real. That's what counts.",
+            "You could cure a disease and your brain would ask why you didn't cure two. The goalpost trick is one of perfectionism's oldest moves. Don't fall for it."
+        ],
+        comparing: [
+            "You're comparing your behind-the-scenes to someone else's highlight reel. You don't know what they didn't do today. You only know what you did. And it was enough.",
+            "Other people's output is not your benchmark. You are living your life, with your brain, your energy, your circumstances. That's the only fair comparison.",
+            "Comparison steals the credit from what you actually accomplished. Those things you did today? They happened. No one else's day changes that."
+        ],
+        discounting: [
+            "You just listed real things you did, and now you're trying to un-count them. That's the anxiety talking. Read your list again — slowly. Those things happened because of you.",
+            "'That doesn't count' is a lie perfectionism tells to keep you running. Everything counts. The small stuff especially.",
+            "If a friend told you they did these things, you'd say 'that's great.' Try giving yourself that same grace."
+        ],
+        shouldhave: [
+            "The 'should have' list is infinite. It will never be empty. But the 'what I did' list is real and finite, and you just wrote it down. Stay with what's real.",
+            "You're grieving a fantasy version of today that never existed. The actual today had you in it, doing actual things. That's the one that matters.",
+            "Focusing on what you didn't do is like looking at a painting and only seeing the blank canvas around it. The painting is there. Look at the painting."
+        ]
+    };
+
+    const CLOSING_MESSAGES = [
+        "The day is closed. Not because everything got done — because you decided to stop carrying it. Sleep is not a reward for productivity. It's a human need. Go rest.",
+        "You showed up today. In all the ways you listed, and probably in ways you forgot to mention. The day is done. Let it be done.",
+        "Look at that list one more time. That was you. That was today. Tomorrow will bring its own list. Tonight, this one is finished.",
+        "The day doesn't need your permission to end. But you gave it a proper goodbye, and that matters. You did enough. Goodnight.",
+        "Every single thing on your list was a choice you made to show up. The day is over now. You can put it down."
+    ];
+
+    function initReflect() {
+        const itemInput = document.getElementById('reflect-item-input');
+        const addBtn = document.getElementById('add-reflect-item');
+        const nextBtn = document.getElementById('reflect-next');
+        const closeBtn = document.getElementById('close-the-day');
+        const entriesContainer = document.getElementById('reflect-entries');
+        const trapBtns = document.querySelectorAll('.trap-btn');
+
+        let reflectItems = [];
+
+        function renderEntries() {
+            if (reflectItems.length === 0) {
+                entriesContainer.innerHTML = '';
+                nextBtn.disabled = true;
+                return;
+            }
+
+            nextBtn.disabled = false;
+            entriesContainer.innerHTML = reflectItems.map((item, i) => `
+                <div class="reflect-entry">
+                    <span class="reflect-entry-text">${item}</span>
+                    <button class="reflect-entry-remove" data-index="${i}" aria-label="Remove">&times;</button>
+                </div>
+            `).join('');
+
+            // Attach remove handlers
+            entriesContainer.querySelectorAll('.reflect-entry-remove').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    reflectItems.splice(parseInt(btn.dataset.index), 1);
+                    renderEntries();
+                });
+            });
+        }
+
+        function addItem() {
+            const text = itemInput.value.trim();
+            if (!text) return;
+            reflectItems.push(text);
+            itemInput.value = '';
+            renderEntries();
+            itemInput.focus();
+        }
+
+        addBtn.addEventListener('click', addItem);
+        itemInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addItem();
+        });
+
+        // Step 1 → Step 2: Show summary
+        nextBtn.addEventListener('click', () => {
+            document.getElementById('reflect-step-1').style.display = 'none';
+            document.getElementById('reflect-step-2').style.display = 'block';
+
+            const summary = document.getElementById('reflect-summary');
+            const count = reflectItems.length;
+            const countWord = count === 1 ? 'one thing' : count + ' things';
+
+            summary.innerHTML = `
+                <p class="reflect-count">You did <strong>${countWord}</strong> today.</p>
+                <ul class="reflect-summary-list">
+                    ${reflectItems.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+                <p class="reflect-affirmation">Read that list. That was you. That was real.</p>
+            `;
+
+            summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        // Trap buttons
+        trapBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                trapBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const trap = btn.dataset.trap;
+                const response = getRandomItem(TRAP_RESPONSES[trap]);
+
+                const responseEl = document.getElementById('trap-response');
+                responseEl.innerHTML = `<p>${response}</p>`;
+                responseEl.classList.add('show');
+            });
+        });
+
+        // Close the day
+        closeBtn.addEventListener('click', () => {
+            document.getElementById('reflect-step-2').style.display = 'none';
+            document.getElementById('reflect-step-3').style.display = 'block';
+
+            const closedEl = document.getElementById('reflect-closed');
+            closedEl.innerHTML = `
+                <span class="reflect-closed-icon">&#9790;</span>
+                <p class="reflect-closed-message">${getRandomItem(CLOSING_MESSAGES)}</p>
+                <button class="secondary-btn" id="reflect-reset">Start a new reflection</button>
+            `;
+            closedEl.classList.add('show');
+
+            // Save the reflection
+            const reflection = {
+                id: Date.now(),
+                items: [...reflectItems],
+                date: new Date().toISOString()
+            };
+            const reflections = getData(KEYS.REFLECTIONS);
+            reflections.unshift(reflection);
+            saveData(KEYS.REFLECTIONS, reflections.slice(0, 30));
+
+            renderReflectHistory();
+
+            // Reset button
+            document.getElementById('reflect-reset').addEventListener('click', () => {
+                reflectItems = [];
+                renderEntries();
+                document.getElementById('reflect-step-3').style.display = 'none';
+                document.getElementById('reflect-step-1').style.display = 'block';
+                document.getElementById('trap-response').classList.remove('show');
+                document.querySelectorAll('.trap-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById('reflect-closed').classList.remove('show');
+            });
+        });
+
+        renderReflectHistory();
+    }
+
+    function renderReflectHistory() {
+        const list = document.getElementById('reflect-list');
+        const reflections = getData(KEYS.REFLECTIONS).slice(0, 5);
+
+        if (reflections.length === 0) {
+            list.innerHTML = '<li class="empty-state">Your reflections will appear here</li>';
+            return;
+        }
+
+        list.innerHTML = reflections.map(r => `
+            <li>
+                <span class="reflect-history-text">${r.items.length} thing${r.items.length === 1 ? '' : 's'} done</span>
+                <span class="reflect-history-date">${formatDate(r.date)}</span>
             </li>
         `).join('');
     }
@@ -901,6 +1362,10 @@
         initReframe();
         initWins();
         initEnough();
+        initCompassion();
+        initCompare();
+        initMattering();
+        initWinddown();
         initReflect();
         renderProgress();
 
