@@ -1,13 +1,16 @@
 // Steady Service Worker - Offline Support
-const CACHE_NAME = 'steady-v4';
+const CACHE_NAME = 'steady-v5';
+// Relative paths so the app works at any base path (custom domain or GitHub Pages subpath)
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  './',
+  './index.html',
+  './about.html',
+  './privacy.html',
+  './style.css',
+  './app.js',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 // Install - cache assets

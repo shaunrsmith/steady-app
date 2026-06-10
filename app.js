@@ -1041,9 +1041,38 @@
 
         // Render check-in chart (last 7 days)
         renderCheckinChart(checkins);
+        renderCheckinInsight(checkins);
 
         // Render recent activity
         renderRecentActivity(checkins, wins, releases, reframes, reflections);
+    }
+
+    function renderCheckinInsight(checkins) {
+        const insight = document.getElementById('checkin-insight');
+        if (!insight) return;
+
+        if (checkins.length < 3) {
+            insight.textContent = '';
+            return;
+        }
+
+        const avg = arr => arr.reduce((sum, c) => sum + c.value, 0) / arr.length;
+        const recent = avg(checkins.slice(0, 7));
+        let text = `Your recent check-ins average ${recent.toFixed(1)} out of 5.`;
+
+        if (checkins.length >= 10) {
+            const prior = avg(checkins.slice(7, 14));
+            const diff = recent - prior;
+            if (diff <= -0.5) {
+                text += " Quieter than before. Whatever you're doing, it counts.";
+            } else if (diff >= 0.5) {
+                text += " Louder lately. That's not a setback — it's information. Be extra gentle with yourself.";
+            } else {
+                text += " Holding steady. That's exactly what this is about.";
+            }
+        }
+
+        insight.textContent = text;
     }
 
     function renderCheckinChart(checkins) {
@@ -1322,6 +1351,132 @@
     }
 
     // ============================================
+    // Backup & Restore
+    // ============================================
+    function downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function initData() {
+        const exportBtn = document.getElementById('export-data');
+        const importBtn = document.getElementById('import-data');
+        const fileInput = document.getElementById('import-file');
+        const feedback = document.getElementById('data-feedback');
+        if (!exportBtn || !importBtn || !fileInput) return;
+
+        exportBtn.addEventListener('click', () => {
+            const backup = {
+                app: 'steady',
+                version: 1,
+                exportedAt: new Date().toISOString(),
+                data: {}
+            };
+            Object.values(KEYS).forEach(key => {
+                backup.data[key] = getData(key);
+            });
+            const stamp = new Date().toISOString().slice(0, 10);
+            downloadFile(JSON.stringify(backup, null, 2), `steady-backup-${stamp}.json`, 'application/json');
+            showFeedback(feedback, 'Backup downloaded. Keep it somewhere safe.', 'success');
+        });
+
+        importBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const backup = JSON.parse(reader.result);
+                    if (!backup || backup.app !== 'steady' || typeof backup.data !== 'object') {
+                        showFeedback(feedback, "That doesn't look like a Steady backup file.", 'success');
+                        return;
+                    }
+
+                    // Merge by id so restoring never erases what's already here
+                    Object.values(KEYS).forEach(key => {
+                        const incoming = Array.isArray(backup.data[key]) ? backup.data[key] : [];
+                        if (incoming.length === 0) return;
+                        const existing = getData(key);
+                        const seen = new Set(existing.map(e => e.id));
+                        const merged = existing.concat(incoming.filter(e => e && e.id && !seen.has(e.id)));
+                        merged.sort((a, b) => new Date(b.date) - new Date(a.date));
+                        saveData(key, merged);
+                    });
+
+                    renderProgress();
+                    renderWins();
+                    renderReleases();
+                    renderReframeHistory();
+                    renderCompassionHistory();
+                    renderCompareHistory();
+                    renderMatteringHistory();
+                    renderWinddownHistory();
+                    renderReflectHistory();
+
+                    showFeedback(feedback, 'Restored. Your history is back, merged with what was already here.', 'success');
+                } catch (e) {
+                    showFeedback(feedback, "Couldn't read that file. Is it a Steady backup?", 'success');
+                }
+                fileInput.value = '';
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    // ============================================
+    // Daily Reminder (.ics calendar file)
+    // ============================================
+    function initReminder() {
+        const btn = document.getElementById('set-reminder');
+        if (!btn) return;
+
+        btn.addEventListener('click', () => {
+            const pad = n => String(n).padStart(2, '0');
+            const localStamp = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+
+            // First occurrence: tomorrow at 8pm local time
+            const start = new Date();
+            start.setDate(start.getDate() + 1);
+            start.setHours(20, 0, 0, 0);
+
+            const ics = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Steady//Daily Check-In//EN',
+                'BEGIN:VEVENT',
+                `UID:steady-daily-checkin-${Date.now()}@steadyoverspirals.com`,
+                `DTSTAMP:${localStamp(new Date())}`,
+                `DTSTART:${localStamp(start)}`,
+                'DURATION:PT5M',
+                'RRULE:FREQ=DAILY',
+                'SUMMARY:Steady check-in',
+                'DESCRIPTION:A gentle minute to notice how the spirals are today. No pressure — skip it whenever you need to.',
+                'BEGIN:VALARM',
+                'TRIGGER:-PT0M',
+                'ACTION:DISPLAY',
+                'DESCRIPTION:Steady check-in',
+                'END:VALARM',
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+
+            downloadFile(ics, 'steady-daily-reminder.ics', 'text/calendar');
+            const feedback = document.getElementById('checkin-feedback');
+            showFeedback(feedback, 'Reminder downloaded — open it to add a daily 8pm nudge. You can change the time in your calendar.', 'success');
+        });
+    }
+
+    // ============================================
     // Welcome Affirmation
     // ============================================
     function initAffirmation() {
@@ -1367,6 +1522,8 @@
         initMattering();
         initWinddown();
         initReflect();
+        initData();
+        initReminder();
         renderProgress();
 
         console.log('Steady initialized. You\'re doing enough.');

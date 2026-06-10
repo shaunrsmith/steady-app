@@ -73,6 +73,11 @@
 
                 <button class="primary-btn" id="save-checkin">Save Check-In</button>
                 <div class="feedback" id="checkin-feedback"></div>
+
+                <div class="reminder-nudge">
+                    <p>Checking in once a day helps the patterns show. No streaks, no pressure — just a gentle nudge if you want one.</p>
+                    <button class="secondary-btn" id="set-reminder">Add a daily reminder to my calendar</button>
+                </div>
             </section>
 
             <!-- Box Breathing -->
@@ -421,6 +426,7 @@
                     <div class="chart" id="checkin-chart">
                         <!-- Simple bar chart will render here -->
                     </div>
+                    <p class="checkin-insight" id="checkin-insight"></p>
                     <div class="checkin-detail" id="checkin-detail">
                         <!-- Selected check-in details appear here -->
                     </div>
@@ -430,12 +436,31 @@
                     <h3>Recent activity</h3>
                     <ul class="activity-list" id="activity-list"></ul>
                 </div>
+
+                <div class="data-card">
+                    <h3>Your data</h3>
+                    <p class="data-note">Everything you write stays on this device. Nothing is sent anywhere. Download a backup now and then so clearing your browser never takes your journey with it.</p>
+                    <div class="data-actions">
+                        <button class="secondary-btn" id="export-data">Download backup</button>
+                        <button class="secondary-btn" id="import-data">Restore from backup</button>
+                        <input type="file" id="import-file" accept=".json,application/json" style="display: none;">
+                    </div>
+                    <div class="feedback" id="data-feedback"></div>
+                </div>
             </section>
         </main>
 
         <footer class="footer">
             <p>Steady over spirals. You're doing enough.</p>
-            <a href="mailto:collaborate@sparkable.com?subject=Steady%20Feedback" class="feedback-link">Share Feedback</a>
+            <div class="footer-links">
+                <a href="about.html" class="feedback-link">About</a>
+                <a href="privacy.html" class="feedback-link">Privacy</a>
+                <a href="mailto:collaborate@sparkable.com?subject=Steady%20Feedback" class="feedback-link">Share Feedback</a>
+            </div>
+            <div class="crisis-note">
+                <p>Steady is a self-help companion, not therapy or medical care.</p>
+                <p>If you're struggling or in crisis, you deserve real support: call or text <a href="tel:988">988</a> (US Suicide &amp; Crisis Lifeline) or find a helpline anywhere in the world at <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a>.</p>
+            </div>
         </footer>
     </div>
 

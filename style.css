@@ -1429,3 +1429,83 @@ textarea::placeholder, input::placeholder {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* Reminder nudge */
+.reminder-nudge {
+    margin-top: 28px;
+    padding: 16px 18px;
+    background: var(--warm-cream);
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.reminder-nudge p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+/* Check-in trend insight */
+.checkin-insight {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 12px 4px 0;
+}
+
+.checkin-insight:empty {
+    display: none;
+}
+
+/* Your data card */
+.data-card {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--warm-cream);
+    border-radius: var(--radius);
+}
+
+.data-card h3 {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--sage-dark);
+}
+
+.data-note {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+}
+
+.data-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Footer links + crisis note */
+.footer-links {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.crisis-note {
+    margin: 18px auto 0;
+    max-width: 480px;
+    padding: 14px 18px;
+    background: var(--warm-cream);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.crisis-note p + p {
+    margin-top: 6px;
+}
+
+.crisis-note a {
+    color: var(--sage-dark);
+    font-weight: 500;
+}
