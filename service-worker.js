@@ -1,5 +1,5 @@
 // Steady Service Worker - Offline Support
-const CACHE_NAME = 'steady-v4';
+const CACHE_NAME = 'steady-v5';
 const ASSETS = [
   '/',
   '/index.html',
@@ -7,7 +7,9 @@ const ASSETS = [
   '/app.js',
   '/manifest.json',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/icons/icon-180.png',
+  '/icons/icon.svg'
 ];
 
 // Install - cache assets
